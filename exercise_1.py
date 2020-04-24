@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 POPULATION = 10000
 '''The size of the initial population.'''
 
-INITIAL_INFECTION = 5
+INITIAL_INFECTION = 20
 '''The initial infection is the number of initially infected individuals in the population.'''
 
 SIMULATION_DAYS = 200
@@ -72,8 +72,8 @@ cumulative_cases = [INITIAL_INFECTION]
 active_cases = [INITIAL_INFECTION]
 cumulative_recoveries = [0]
 cumulative_deaths = [0]
-daily_new_cases = [INITIAL_INFECTION]
-daily_new_active_cases = [INITIAL_INFECTION]
+daily_new_cases = [0]
+daily_new_active_cases = [0]
 daily_new_recoveries = [0]
 daily_new_deaths = [0]
 maximum_active_cases = 0
@@ -137,13 +137,13 @@ for day in range(SIMULATION_DAYS):
 
     # append the today's statistics to the lists
     cumulative_cases.append(cumulative_cases[day] + new_cases)
-    active_cases.append(active_cases[day] + new_cases - new_recoveries)
+    active_cases.append(active_cases[day] + new_cases - new_recoveries - new_deaths)
     if active_cases[day+1] > maximum_active_cases:
         maximum_active_cases = active_cases[day+1]
     cumulative_recoveries.append(cumulative_recoveries[day] + new_recoveries)
     cumulative_deaths.append(cumulative_deaths[day] + new_deaths)
     daily_new_cases.append(new_cases)
-    daily_new_active_cases.append(new_cases - new_recoveries)
+    daily_new_active_cases.append(new_cases - new_recoveries - new_deaths)
     daily_new_recoveries.append(new_recoveries)
     daily_new_deaths.append(new_deaths)
 
