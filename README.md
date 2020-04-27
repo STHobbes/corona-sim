@@ -29,7 +29,7 @@ Starts with a copy of `exerecise1.py` as `exercise2.py`. In this copy we: makes 
 add data output to a file; and add capability to change <i>R<sub>0</sub></i> when some condition is met,
 like the number cases has reached a threshold, or some number of days since the start of the simulation was reached.
 
-## Exoploration 2:
+## Exploration 2:
 Using some assumptions about measures like travel bans, stay and home, physical distancing simulate the
 differences between early and late mitigation to see how that affects the course of a disease.
 
