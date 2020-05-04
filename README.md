@@ -26,12 +26,15 @@ graphs that data.
 
 ## Exercise 2
 Starts with a copy of `exerecise1.py` as `exercise2.py`. In this copy we: makes a few modeling corrections;
-add data output to a file; and add capability to change <i>R<sub>0</sub></i> when some condition is met,
-like the number cases has reached a threshold, or some number of days since the start of the simulation was reached.
+add data output to a file; and add capability to specify a sequence of phases in the simulation which
+are activated by meeting specified coonditions - like the number cases has reached a threshold, or some
+number of days since the start of the simulation, or number of days since peak new cases. Each phase
+defines the parameters that produce the <i>R<sub>0</sub></i> for that phase.
 
 ## Exploration 2:
 Using some assumptions about measures like travel bans, stay and home, physical distancing simulate the
-differences between early and late mitigation to see how that affects the course of a disease.
+differences between early and late mitigation to see how that affects the course of a disease. Take a
+look at reopening and the factors that affect the dynamics.
 
 
 

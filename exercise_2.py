@@ -3,7 +3,7 @@ import random
 import time
 import matplotlib.pyplot as plt
 
-POPULATION = 10000
+POPULATION = 50000
 '''The size of the initial population.'''
 
 INITIAL_INFECTION = 20
@@ -12,17 +12,23 @@ INITIAL_INFECTION = 20
 SIMULATION_DAYS = 200
 '''The number of days to run the simulation.'''
 
-SIMULATION_STATES = {'normal': {'daily contacts': 10,
-                                'transmission probability': 0.03}}
-
-simulation_state = SIMULATION_STATES['normal']
-'''The current simulation state'''
-
-daily_contacts = simulation_state['daily contacts']
-'''The number of people you come into contact with on a daily basis.'''
-
-transmission_probability = simulation_state['transmission probability']
-'''the likelihood a 'contagious' person will infect a 'well' person.'''
+SIMULATION_PHASES = {
+    'normal': {'daily contacts': 50,
+               'transmission probability': 0.015,
+               'next phase': 'lock down',
+               'condition': {'type': 'cumulative cases exceeds',
+                             'count': 200}},
+    'lock down': {'daily contacts': 20,
+                  'transmission probability': 0.01,
+                  'next phase': 'reopen',
+                  'condition': {'type': 'days after max active',
+                                'days': 21}},
+    'reopen': {'daily contacts': 25,
+               'transmission probability': 0.012}}
+'''These are the 'phases' the simulation goes through. Phases generally mean a change
+in the conditions under which the simulation is running. Often these represent
+mandated changes in behaviour of the population in effort to try to affect what
+would be the normal path of the simulation.'''
 
 HEALTH_STATES = {'well': {'days at state': -1,
                           'can be infected': True,
@@ -46,6 +52,32 @@ HEALTH_STATES = {'well': {'days at state': -1,
                             'death rate': 0.0},
                  'dead': {'days at state': -1,
                           'can be infected': False}}
+
+
+def set_simulation_phase(phase_key, start_day):
+    phase = SIMULATION_PHASES[phase_key]
+    has_next = 'next phase' in phase and 'condition' in phase
+    contacts = phase['daily contacts']
+    transmissivity = phase['transmission probability']
+    phase['Ro'] = contacts * transmissivity \
+                  * HEALTH_STATES['contagious']['days at state']
+    phase['start day'] = start_day
+    return phase, has_next, contacts, transmissivity
+
+
+simulation_phase, has_next_simulation_phase, daily_contacts, \
+transmission_probability = set_simulation_phase('normal', 0)
+# This line declares 4 key variables for our simulation:
+# simulation_state = SIMULATION_STATES['normal']
+# '''The current simulation state'''
+# has_next_simulation_state = 'next phase' in simulation_state and \
+#     'condition' in simulation_state
+#
+# daily_contacts = simulation_state['daily contacts']
+# '''The number of people you come into contact with on a daily basis.'''
+#
+# transmission_probability = simulation_state['transmission probability']
+# '''the likelihood a 'contagious' person will infect a 'well' person.'''
 
 random.seed(42)
 # Everything is setup, get the start time for the simulation
@@ -174,17 +206,37 @@ for day in range(SIMULATION_DAYS):
     daily_new_recoveries.append(new_recoveries)
     daily_new_deaths.append(new_deaths)
 
+    # Does the simulation state change?
+    if has_next_simulation_phase:
+        condition = simulation_phase['condition']
+        if condition['type'] == 'cumulative cases exceeds':
+            if cumulative_cases[day + 1] >= condition['count']:
+                print(f' advance to {simulation_phase["next phase"]} on day {day}')
+                simulation_phase, has_next_simulation_phase, daily_contacts, \
+                transmission_probability = \
+                    set_simulation_phase(simulation_phase['next phase'], day)
+        elif condition['type'] == 'days after max active':
+            if day - maximum_active_cases_day >= condition['days']:
+                print(f' advance to {simulation_phase["next phase"]} on day {day}')
+                simulation_phase, has_next_simulation_phase, daily_contacts, \
+                transmission_probability = \
+                    set_simulation_phase(simulation_phase['next phase'], day)
+
 # print the results of the simulation
-Ro = daily_contacts * transmission_probability * HEALTH_STATES['contagious']['days at state']
 print(f'Simulation Summary:')
 print(f'  Setup:')
 print(f'    Simulation Days:           {SIMULATION_DAYS:16,}')
 print(f'    Population:                {POPULATION:16,}')
 print(f'    Initial Infection:         {INITIAL_INFECTION:16,}')
-print(f'    Contacts per Day:          {daily_contacts:16,}')
 print(f'    Days Contagious:           {HEALTH_STATES["contagious"]["days at state"]:16,}')
-print(f'    Transmission Probability:  {transmission_probability:16.4f}')
-print(f'    Ro:                        {Ro:16.4f}')
+print(f'    Phases:')
+for key, value in SIMULATION_PHASES.items():
+    if 'start day' in value:
+        print(f'      {key}:')
+        print(f'        start day:               {value["start day"]:14,}')
+        print(f'        contacts per day:        {value["daily contacts"]:14,}')
+        print(f'        transmission probability:{value["transmission probability"]:14.4f}')
+        print(f'        Ro:                      {value["Ro"]:14.4f}')
 print(f'  Daily:')
 print(f'    Max Daily New Cases:')
 print(f'      Number of Cases:         {maximum_daily_new_cases:16,}')
@@ -204,13 +256,21 @@ print(f'    Cumulative Deaths:         {cumulative_deaths[SIMULATION_DAYS]:16,}'
 print(f'\nSimulation time: {time.time() - start:.4f}sec\n')
 
 # save the data from this simulation to a file
+phases_data = {}
+for key, value in SIMULATION_PHASES.items():
+    if 'start day' in value:
+        phases_data[key] = {
+            'start_day': value['start day'],
+            'daily_contacts': value['daily contacts'],
+            'transmission_probability': value['transmission probability'],
+            'Ro': value["Ro"]
+        }
+
 data = {'simulation_days': SIMULATION_DAYS,
         'population': POPULATION,
         'initial_infection': INITIAL_INFECTION,
-        'daily_contacts': daily_contacts,
         'days_contagious': HEALTH_STATES['contagious']['days at state'],
-        'transmission_probability': transmission_probability,
-        'Ro': Ro,
+        'phases': phases_data,
         'max_new_daily_cases_ct': maximum_daily_new_cases,
         'max_new_daily_cases_day': maximum_new_cases_day,
         'max_new_daily_cases_cum': maximum_new_cases_cumulative,
@@ -227,7 +287,7 @@ data = {'simulation_days': SIMULATION_DAYS,
         'daily_new_active_cases_series': daily_new_active_cases,
         'daily_new_recoveries_series': daily_new_recoveries,
         'daily_new_deaths_series': daily_new_deaths}
-with open("./data/expl2/test.json", "w") as fw:
+with open("./data/expl2/test_200.json", "w") as fw:
     json.dump(data, fw, indent=2)
 
 # plot the results
