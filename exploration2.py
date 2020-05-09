@@ -9,83 +9,46 @@ def read_data_file(file_name):
 
 
 test = read_data_file("./data/expl2/test.json")
-with open("./data/expl2/test_200.json", "r") as fr:
-    test_200 = json.load(fr)
-with open("./data/expl2/test_1000.json", "r") as fr:
-    test_1000 = json.load(fr)
-with open("./data/expl2/test_2500.json", "r") as fr:
-    test_2500 = json.load(fr)
-with open("./data/expl2/test_5000.json", "r") as fr:
-    test_5000 = json.load(fr)
+test_200 = read_data_file("./data/expl2/test_200.json")
+test_1000 = read_data_file("./data/expl2/test_1000.json")
+test_2500 = read_data_file("./data/expl2/test_2500.json")
+test_5000 = read_data_file("./data/expl2/test_5000.json")
 
-with open("./data/expl2/report_200_reopen_1_105.json", "r") as fr:
-    report_1_105_seeded = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_0.json", "r") as fr:
-    report_1_105_0 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_1.json", "r") as fr:
-    report_1_105_1 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_2.json", "r") as fr:
-    report_1_105_2 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_3.json", "r") as fr:
-    report_1_105_3 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_4.json", "r") as fr:
-    report_1_105_4 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_5.json", "r") as fr:
-    report_1_105_5 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_6.json", "r") as fr:
-    report_1_105_6 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_7.json", "r") as fr:
-    report_1_105_7 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_8.json", "r") as fr:
-    report_1_105_8 = json.load(fr)
-with open("./data/expl2/report_200_reopen_1_105_9.json", "r") as fr:
-    report_1_105_9 = json.load(fr)
+report_1_105_seeded = read_data_file("./data/expl2/report_200_reopen_1_105.json")
+report_1_105_0 = read_data_file("./data/expl2/report_200_reopen_1_105_0.json")
+report_1_105_1 = read_data_file("./data/expl2/report_200_reopen_1_105_1.json")
+report_1_105_2 = read_data_file("./data/expl2/report_200_reopen_1_105_2.json")
+report_1_105_3 = read_data_file("./data/expl2/report_200_reopen_1_105_3.json")
+report_1_105_4 = read_data_file("./data/expl2/report_200_reopen_1_105_4.json")
+report_1_105_5 = read_data_file("./data/expl2/report_200_reopen_1_105_5.json")
+report_1_105_6 = read_data_file("./data/expl2/report_200_reopen_1_105_6.json")
+report_1_105_7 = read_data_file("./data/expl2/report_200_reopen_1_105_7.json")
+report_1_105_8 = read_data_file("./data/expl2/report_200_reopen_1_105_8.json")
+report_1_105_9 = read_data_file("./data/expl2/report_200_reopen_1_105_9.json")
 
-with open("./data/expl2/report_200_lock_0_68.json", "r") as fr:
-    report_lock_0_68_seeded = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_0.json", "r") as fr:
-    report_lock_0_68_0 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_1.json", "r") as fr:
-    report_lock_0_68_1 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_2.json", "r") as fr:
-    report_lock_0_68_2 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_3.json", "r") as fr:
-    report_lock_0_68_3 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_4.json", "r") as fr:
-    report_lock_0_68_4 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_5.json", "r") as fr:
-    report_lock_0_68_5 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_6.json", "r") as fr:
-    report_lock_0_68_6 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_7.json", "r") as fr:
-    report_lock_0_68_7 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_8.json", "r") as fr:
-    report_lock_0_68_8 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_68_9.json", "r") as fr:
-    report_lock_0_68_9 = json.load(fr)
+report_lock_0_68_seeded = read_data_file("./data/expl2/report_200_lock_0_68.json")
+report_lock_0_68_0 = read_data_file("./data/expl2/report_200_lock_0_68_0.json")
+report_lock_0_68_1 = read_data_file("./data/expl2/report_200_lock_0_68_1.json")
+report_lock_0_68_2 = read_data_file("./data/expl2/report_200_lock_0_68_2.json")
+report_lock_0_68_3 = read_data_file("./data/expl2/report_200_lock_0_68_3.json")
+report_lock_0_68_4 = read_data_file("./data/expl2/report_200_lock_0_68_4.json")
+report_lock_0_68_5 = read_data_file("./data/expl2/report_200_lock_0_68_5.json")
+report_lock_0_68_6 = read_data_file("./data/expl2/report_200_lock_0_68_6.json")
+report_lock_0_68_7 = read_data_file("./data/expl2/report_200_lock_0_68_7.json")
+report_lock_0_68_8 = read_data_file("./data/expl2/report_200_lock_0_68_8.json")
+report_lock_0_68_9 = read_data_file("./data/expl2/report_200_lock_0_68_9.json")
 
-with open("./data/expl2/report_200_lock_0_85.json", "r") as fr:
-    report_lock_0_85_seeded = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_0.json", "r") as fr:
-    report_lock_0_85_0 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_1.json", "r") as fr:
-    report_lock_0_85_1 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_2.json", "r") as fr:
-    report_lock_0_85_2 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_3.json", "r") as fr:
-    report_lock_0_85_3 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_4.json", "r") as fr:
-    report_lock_0_85_4 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_5.json", "r") as fr:
-    report_lock_0_85_5 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_6.json", "r") as fr:
-    report_lock_0_85_6 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_7.json", "r") as fr:
-    report_lock_0_85_7 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_8.json", "r") as fr:
-    report_lock_0_85_8 = json.load(fr)
-with open("./data/expl2/report_200_lock_0_85_9.json", "r") as fr:
-    report_lock_0_85_9 = json.load(fr)
+report_lock_0_85_seeded = read_data_file("./data/expl2/report_200_lock_0_68.json")
+report_lock_0_85_0 = read_data_file("./data/expl2/report_200_lock_0_85_0.json")
+report_lock_0_85_1 = read_data_file("./data/expl2/report_200_lock_0_85_1.json")
+report_lock_0_85_2 = read_data_file("./data/expl2/report_200_lock_0_85_2.json")
+report_lock_0_85_3 = read_data_file("./data/expl2/report_200_lock_0_85_3.json")
+report_lock_0_85_4 = read_data_file("./data/expl2/report_200_lock_0_85_4.json")
+report_lock_0_85_5 = read_data_file("./data/expl2/report_200_lock_0_85_5.json")
+report_lock_0_85_6 = read_data_file("./data/expl2/report_200_lock_0_85_6.json")
+report_lock_0_85_7 = read_data_file("./data/expl2/report_200_lock_0_85_7.json")
+report_lock_0_85_8 = read_data_file("./data/expl2/report_200_lock_0_85_8.json")
+report_lock_0_85_9 = read_data_file("./data/expl2/report_200_lock_0_85_9.json")
 
 # cumulative cases, multiple runs
 plt.clf()
