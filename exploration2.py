@@ -2,8 +2,13 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open("./data/expl2/test.json", "r") as fr:
-    test = json.load(fr)
+
+def read_data_file(file_name):
+    with open(file_name, "r") as data_file:
+        return json.load(data_file)
+
+
+test = read_data_file("./data/expl2/test.json")
 with open("./data/expl2/test_200.json", "r") as fr:
     test_200 = json.load(fr)
 with open("./data/expl2/test_1000.json", "r") as fr:
@@ -176,7 +181,6 @@ plt.plot(report_lock_0_85_9['active_cases_series'], label='run 9')
 plt.legend()
 plt.show()
 plt.pause(0.1)
-
 
 # cumulative deaths curves for various Ro
 plt.clf()
