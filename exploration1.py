@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # These are all of the data files I generated while doing
 # exploration 1. The naming convection is 'R0_' + the
 # value of R0 with an underscore substituted for the decimal
-# point + '_pop_' + poputaion + '.json'. These are all '.json'
+# point + '_pop_' + population + '.json'. These are all '.json'
 # files so I can use the '.json' reader packaged with python.
 with open("./data/expl1/R0_0_50_pop_10000.json", "r") as fr:
     R0_0_50_pop_10000 = json.load(fr)

@@ -8,213 +8,90 @@ def read_data_file(file_name):
         return json.load(data_file)
 
 
-test = read_data_file("./data/expl2/test.json")
-test_200 = read_data_file("./data/expl2/test_200.json")
-test_1000 = read_data_file("./data/expl2/test_1000.json")
-test_2500 = read_data_file("./data/expl2/test_2500.json")
-test_5000 = read_data_file("./data/expl2/test_5000.json")
+def read_run_set(data_directory, base_file, set_size=10):
+    run_set = {'seeded': read_data_file(f'{data_directory}{base_file}.json')}
+    for run in range(set_size):
+        run_set[f'run {run}'] = read_data_file(
+            f'{data_directory}{base_file}_{run}.json')
+    return run_set
 
-report_1_105_seeded = read_data_file("./data/expl2/report_200_reopen_1_105.json")
-report_1_105_0 = read_data_file("./data/expl2/report_200_reopen_1_105_0.json")
-report_1_105_1 = read_data_file("./data/expl2/report_200_reopen_1_105_1.json")
-report_1_105_2 = read_data_file("./data/expl2/report_200_reopen_1_105_2.json")
-report_1_105_3 = read_data_file("./data/expl2/report_200_reopen_1_105_3.json")
-report_1_105_4 = read_data_file("./data/expl2/report_200_reopen_1_105_4.json")
-report_1_105_5 = read_data_file("./data/expl2/report_200_reopen_1_105_5.json")
-report_1_105_6 = read_data_file("./data/expl2/report_200_reopen_1_105_6.json")
-report_1_105_7 = read_data_file("./data/expl2/report_200_reopen_1_105_7.json")
-report_1_105_8 = read_data_file("./data/expl2/report_200_reopen_1_105_8.json")
-report_1_105_9 = read_data_file("./data/expl2/report_200_reopen_1_105_9.json")
 
-report_lock_0_68_seeded = read_data_file("./data/expl2/report_200_lock_0_68.json")
-report_lock_0_68_0 = read_data_file("./data/expl2/report_200_lock_0_68_0.json")
-report_lock_0_68_1 = read_data_file("./data/expl2/report_200_lock_0_68_1.json")
-report_lock_0_68_2 = read_data_file("./data/expl2/report_200_lock_0_68_2.json")
-report_lock_0_68_3 = read_data_file("./data/expl2/report_200_lock_0_68_3.json")
-report_lock_0_68_4 = read_data_file("./data/expl2/report_200_lock_0_68_4.json")
-report_lock_0_68_5 = read_data_file("./data/expl2/report_200_lock_0_68_5.json")
-report_lock_0_68_6 = read_data_file("./data/expl2/report_200_lock_0_68_6.json")
-report_lock_0_68_7 = read_data_file("./data/expl2/report_200_lock_0_68_7.json")
-report_lock_0_68_8 = read_data_file("./data/expl2/report_200_lock_0_68_8.json")
-report_lock_0_68_9 = read_data_file("./data/expl2/report_200_lock_0_68_9.json")
+def plot_run_set(run_set, series, title, events=None,
+                 xlabel='days', ylabel='count'):
+    plt.clf()
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.xticks(np.arange(0, 211, 14))
+    plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+    if events is not None:
+        plt.scatter(events[0], events[1])
+    for label, data in run_set.items():
+        plt.plot(data[series], label=label)
+    plt.legend()
+    plt.show()
+    plt.pause(0.1)
 
-report_lock_0_85_seeded = read_data_file("./data/expl2/report_200_lock_0_68.json")
-report_lock_0_85_0 = read_data_file("./data/expl2/report_200_lock_0_85_0.json")
-report_lock_0_85_1 = read_data_file("./data/expl2/report_200_lock_0_85_1.json")
-report_lock_0_85_2 = read_data_file("./data/expl2/report_200_lock_0_85_2.json")
-report_lock_0_85_3 = read_data_file("./data/expl2/report_200_lock_0_85_3.json")
-report_lock_0_85_4 = read_data_file("./data/expl2/report_200_lock_0_85_4.json")
-report_lock_0_85_5 = read_data_file("./data/expl2/report_200_lock_0_85_5.json")
-report_lock_0_85_6 = read_data_file("./data/expl2/report_200_lock_0_85_6.json")
-report_lock_0_85_7 = read_data_file("./data/expl2/report_200_lock_0_85_7.json")
-report_lock_0_85_8 = read_data_file("./data/expl2/report_200_lock_0_85_8.json")
-report_lock_0_85_9 = read_data_file("./data/expl2/report_200_lock_0_85_9.json")
 
-# cumulative cases, multiple runs
-plt.clf()
-plt.title(
-    f'Cumulative Cases\n for Multiple Runs')
-plt.xlabel('days')
-plt.xticks(np.arange(0, 211, 14))
-plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-plt.ylabel('cumulative number')
-plt.plot(report_1_105_seeded['cumulative_cases_series'], label='seeded')
-plt.plot(report_1_105_0['cumulative_cases_series'], label='run 0')
-plt.plot(report_1_105_1['cumulative_cases_series'], label='run 1')
-plt.plot(report_1_105_2['cumulative_cases_series'], label='run 2')
-plt.plot(report_1_105_3['cumulative_cases_series'], label='run 3')
-plt.plot(report_1_105_4['cumulative_cases_series'], label='run 4')
-plt.plot(report_1_105_5['cumulative_cases_series'], label='run 5')
-plt.plot(report_1_105_6['cumulative_cases_series'], label='run 6')
-plt.plot(report_1_105_7['cumulative_cases_series'], label='run 7')
-plt.plot(report_1_105_8['cumulative_cases_series'], label='run 8')
-plt.plot(report_1_105_9['cumulative_cases_series'], label='run 9')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+data_dir = './data/expl2/'
+# Read the test set for starting the 'stay at home' at different populations
+test_set = {
+    'no lock down': read_data_file(f'{data_dir}test.json'),
+    'lock down @ 200 cases': read_data_file(f'{data_dir}test_200.json'),
+    'lock down @ 1000 cases': read_data_file(f'{data_dir}test_1000.json'),
+    'lock down @ 2500 cases': read_data_file(f'{data_dir}test_2500.json'),
+    'lock down @ 5000 cases': read_data_file(f'{data_dir}test_5000.json')
+}
 
-# active cases, multiple runs
-plt.clf()
-plt.title(
-    f'Active Cases for Multiple Runs\n'
-    f'lock down Ro=0.51')
-plt.xlabel('days')
-plt.xticks(np.arange(0, 211, 14))
-plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-plt.ylabel('cumulative number')
-plt.plot(report_1_105_seeded['active_cases_series'], label='seeded')
-plt.plot(report_1_105_0['active_cases_series'], label='run 0')
-plt.plot(report_1_105_1['active_cases_series'], label='run 1')
-plt.plot(report_1_105_2['active_cases_series'], label='run 2')
-plt.plot(report_1_105_3['active_cases_series'], label='run 3')
-plt.plot(report_1_105_4['active_cases_series'], label='run 4')
-plt.plot(report_1_105_5['active_cases_series'], label='run 5')
-plt.plot(report_1_105_6['active_cases_series'], label='run 6')
-plt.plot(report_1_105_7['active_cases_series'], label='run 7')
-plt.plot(report_1_105_8['active_cases_series'], label='run 8')
-plt.plot(report_1_105_9['active_cases_series'], label='run 9')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+# Read the test run sets for different 'stay at home' Ro values.
+report_1_105 = read_run_set(data_dir, 'report_200_reopen_1_105')
 
-# active cases, multiple runs
-plt.clf()
-plt.title(
-    f'Active Cases for Multiple Runs\n'
-    f'lock down Ro=0.68')
-plt.xlabel('days')
-plt.xticks(np.arange(0, 211, 14))
-plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-plt.ylabel('cumulative number')
-plt.plot(report_lock_0_68_seeded['active_cases_series'], label='seeded')
-plt.plot(report_lock_0_68_0['active_cases_series'], label='run 0')
-plt.plot(report_lock_0_68_1['active_cases_series'], label='run 1')
-plt.plot(report_lock_0_68_2['active_cases_series'], label='run 2')
-plt.plot(report_lock_0_68_3['active_cases_series'], label='run 3')
-plt.plot(report_lock_0_68_4['active_cases_series'], label='run 4')
-plt.plot(report_lock_0_68_5['active_cases_series'], label='run 5')
-plt.plot(report_lock_0_68_6['active_cases_series'], label='run 6')
-plt.plot(report_lock_0_68_7['active_cases_series'], label='run 7')
-plt.plot(report_lock_0_68_8['active_cases_series'], label='run 8')
-plt.plot(report_lock_0_68_9['active_cases_series'], label='run 9')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+report_lock_0_68 = read_run_set(data_dir, 'report_200_lock_0_68')
 
-# active cases, multiple runs
-plt.clf()
-plt.title(
-    f'Active Cases for Multiple Runs\n'
-    f'lock down Ro=0.85')
-plt.xlabel('days')
-plt.xticks(np.arange(0, 211, 14))
-plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-plt.ylabel('cumulative number')
-plt.plot(report_lock_0_85_seeded['active_cases_series'], label='seeded')
-plt.plot(report_lock_0_85_0['active_cases_series'], label='run 0')
-plt.plot(report_lock_0_85_1['active_cases_series'], label='run 1')
-plt.plot(report_lock_0_85_2['active_cases_series'], label='run 2')
-plt.plot(report_lock_0_85_3['active_cases_series'], label='run 3')
-plt.plot(report_lock_0_85_4['active_cases_series'], label='run 4')
-plt.plot(report_lock_0_85_5['active_cases_series'], label='run 5')
-plt.plot(report_lock_0_85_6['active_cases_series'], label='run 6')
-plt.plot(report_lock_0_85_7['active_cases_series'], label='run 7')
-plt.plot(report_lock_0_85_8['active_cases_series'], label='run 8')
-plt.plot(report_lock_0_85_9['active_cases_series'], label='run 9')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+report_lock_0_85 = read_run_set(data_dir, 'report_200_lock_0_85')
 
-# cumulative deaths curves for various Ro
-plt.clf()
-plt.title(
-    f'Cumulative Deaths Simulation\n for various lock down timing')
-plt.xlabel('days')
-plt.ylabel('cumulative number')
-plt.plot(test['cumulative_deaths_series'], label='no lock down')
-plt.plot(test_200['cumulative_deaths_series'], label='lock down @ 200 cases')
-plt.plot(test_1000['cumulative_deaths_series'], label='lock down @ 1000 cases')
-plt.plot(test_2500['cumulative_deaths_series'], label='lock down @ 2500 cases')
-plt.plot(test_5000['cumulative_deaths_series'], label='lock down @ 5000 cases')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+# Plot the run sets for a similar scenarios start. lock down, and reopen
+# with different Ro during lock down.
+plot_run_set(report_1_105, 'cumulative_cases_series',
+             f'Cumulative Cases for Multiple Runs\nlock down Ro=0.51',
+             ylabel='cumulative number')
 
-# Active cases curves for various Ro
-plt.clf()
-plt.title(
-    f'Active Cases Simulation\n for various lock down and reopen timing')
-plt.xlabel('days')
-plt.ylabel('cumulative number')
-plt.plot(test['active_cases_series'], label='no lock down')
-plt.plot(test_200['active_cases_series'], label='lock down @ 200 cases')
-plt.plot(test_1000['active_cases_series'], label='lock down @ 1000 cases')
-plt.plot(test_2500['active_cases_series'], label='lock down @ 2500 cases')
-plt.plot(test_5000['active_cases_series'], label='lock down @ 5000 cases')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+plot_run_set(report_1_105, 'active_cases_series',
+             f'Active Cases for Multiple Runs\nlock down Ro=0.51',
+             ylabel='daily count')
 
-# cumulative cases curves for various R0
-plt.clf()
-plt.title(
-    f'Cumulative Cases Simulation\n for various lock down and reopen timing')
-plt.xlabel('days')
-plt.ylabel('cumulative number')
-plt.plot(test_200['cumulative_cases_series'], label='lock down @ 200 cases')
-plt.plot(test_1000['cumulative_cases_series'], label='lock down @ 1000 cases')
-plt.plot(test_2500['cumulative_cases_series'], label='lock down @ 2500 cases')
-plt.plot(test_5000['cumulative_cases_series'], label='lock down @ 5000 cases')
-plt.legend()
-plt.show()
-plt.pause(0.1)
+plot_run_set(report_lock_0_68, 'active_cases_series',
+             f'Active Cases for Multiple Runs\nlock down Ro=0.68',
+             ylabel='daily count')
 
-# cumulative deaths curves for various Ro
-plt.clf()
-plt.title(
-    f'Cumulative Deaths Simulation\n for various lock down and reopen timing')
-plt.xlabel('days')
-plt.ylabel('cumulative number')
-plt.plot(test_200['cumulative_deaths_series'], label='lock down @ 200 cases')
-plt.plot(test_1000['cumulative_deaths_series'], label='lock down @ 1000 cases')
-plt.plot(test_2500['cumulative_deaths_series'], label='lock down @ 2500 cases')
-plt.plot(test_5000['cumulative_deaths_series'], label='lock down @ 5000 cases')
-plt.scatter([6, 11, 13, 15, 38, 43, 49, 46], [2, 4, 8, 14, 19, 86, 238, 335])
-plt.legend()
-plt.show()
-plt.pause(0.1)
+plot_run_set(report_lock_0_85, 'active_cases_series',
+             f'Active Cases for Multiple Runs\nlock down Ro=0.85',
+             ylabel='daily count')
 
-# Active cases curves for various Ro
-plt.clf()
-plt.title(
-    f'Active Cases Simulation\n for various lock down and reopen timing')
-plt.xlabel('days')
-plt.ylabel('cumulative number')
-plt.plot(test_200['active_cases_series'], label='lock down @ 200 cases')
-plt.plot(test_1000['active_cases_series'], label='lock down @ 1000 cases')
-plt.plot(test_2500['active_cases_series'], label='lock down @ 2500 cases')
-plt.plot(test_5000['active_cases_series'], label='lock down @ 5000 cases')
-plt.scatter([6, 11, 13, 15, 38, 43, 49, 46], [204, 1066, 2057, 3833, 74, 459, 675, 1084])
-plt.legend()
-plt.show()
-plt.pause(0.1)
+# Plots for various lock down thresholds.
+plot_run_set(test_set, 'cumulative_deaths_series',
+             f'Cumulative Deaths Simulation\n for various lock down timing',
+             ylabel='cumulative deaths')
+
+plot_run_set(test_set, 'active_cases_series',
+             f'Active Cases Simulation\n for various lock down and reopen timing',
+             ylabel='daily count')
+
+# Plots for various lock down thresholds removing the 'no lock down' case so the
+# scaling of the graphs gives us a better idea of what really happens.
+del test_set['no lock down']
+plot_run_set(test_set, 'cumulative_cases_series',
+             f'Cumulative Cases Simulation\n for various lock down timing',
+             ylabel='cumulative cases')
+
+plot_run_set(test_set, 'cumulative_deaths_series',
+             f'Cumulative Deaths Simulation\n for various lock down timing',
+             ylabel='cumulative deaths',
+             events=([6, 11, 13, 15, 38, 43, 49, 46],
+                     [2, 4, 8, 14, 19, 86, 238, 335]))
+
+plot_run_set(test_set, 'active_cases_series',
+             f'Active Cases Simulation\n for various lock down timing',
+             ylabel='daily count',
+             events=([6, 11, 13, 15, 38, 43, 49, 46],
+                     [204, 1066, 2057, 3833, 74, 459, 675, 1084]))
