@@ -17,24 +17,36 @@ The learning had two phases that can be done together:
 
 ## Exercise 1  
 Build a simple time stepped agent-based simulation to simulate how an infection spreads through a population. A
-solution is in `exercise1.py` file.
+solution is in `exercise_1.py` file.
 
 ## Exploration 1
-Using the `exercise1.py` program to explore the metric <i>R<sub>0</sub></i> in the spread of an infectious
+Using the `exercise_1.py` program to explore the metric <i>R<sub>0</sub></i> in the spread of an infectious
 disease. Data generated from this exploration is in `./data/expl1/*`, and the program `exploration1.py`
 graphs that data.
 
 ## Exercise 2
-Starts with a copy of `exerecise1.py` as `exercise2.py`. In this copy we: makes a few modeling corrections;
+Starts with a copy of `exerecise_1.py` as `exercise_2.py`. In this copy we: makes a few modeling corrections;
 add data output to a file; and add capability to specify a sequence of phases in the simulation which
-are activated by meeting specified coonditions - like the number cases has reached a threshold, or some
+are activated by meeting specified conditions - like the number cases has reached a threshold, or some
 number of days since the start of the simulation, or number of days since peak new cases. Each phase
 defines the parameters that produce the <i>R<sub>0</sub></i> for that phase.
 
 ## Exploration 2:
-Using some assumptions about measures like travel bans, stay and home, physical distancing simulate the
-differences between early and late mitigation to see how that affects the course of a disease. Take a
-look at reopening and the factors that affect the dynamics.
+Using some assumptions about measures like travel bans, stay and home, and physical distancing use the
+simulation to investigate the differences between early and late mitigation to see how that affects the
+course of a disease. Let's also look at different effectiveness  of, that is, different values for the Ro
+during, the stay at home as it affects the dynamics of reopening. Data generated from this exploration is
+in `./data/expl2/*`, and the program `exploration2.py` graphs that data. `exploration2_old.py` was the
+original high copy and paste version, and `exploration2.py` the refactored version to help us move
+forward with less work and more consistency.
 
+## Exercise 3:
+A refactoring of exercise 2 code to make it easier to test different scenarios and build run sets for
+different scenarios. As we do this we will look at the split between the number of confirmed cases and
+the estimated number of cases. We will also add a projected hospitalized and critically ill, and a way
+to add events like a convention, weekend party, concert, etc.
+
+## Exploration 3:
+Explore what happens when you have a concert.
 
 
