@@ -223,7 +223,7 @@ for day in range(SIMULATION_DAYS):
         if move_to_next_phase:
             print(f' advance to {simulation_phase["next phase"]} on day {day}')
             simulation_phase, has_next_simulation_phase, daily_contacts, \
-            transmission_probability = \
+                transmission_probability = \
                 set_simulation_phase(simulation_phase['next phase'], day)
             phase_days += [day + 1, day + 1, day + 1, day + 1]
             phase_cumulative += [cumulative_cases[day + 1], active_cases[day + 1],

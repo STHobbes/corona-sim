@@ -213,13 +213,13 @@ for day in range(SIMULATION_DAYS):
             if cumulative_cases[day + 1] >= condition['count']:
                 print(f' advance to {simulation_phase["next phase"]} on day {day}')
                 simulation_phase, has_next_simulation_phase, daily_contacts, \
-                transmission_probability = \
+                    transmission_probability = \
                     set_simulation_phase(simulation_phase['next phase'], day)
         elif condition['type'] == 'days after max active':
             if day - maximum_active_cases_day >= condition['days']:
                 print(f' advance to {simulation_phase["next phase"]} on day {day}')
                 simulation_phase, has_next_simulation_phase, daily_contacts, \
-                transmission_probability = \
+                    transmission_probability = \
                     set_simulation_phase(simulation_phase['next phase'], day)
 
 # print the results of the simulation
