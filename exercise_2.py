@@ -16,7 +16,7 @@ SIMULATION_DAYS = 211
 SIMULATION_PHASES = {
     'normal': {'daily contacts': 50,
                'transmission probability': 0.015,
-               # 'next phase': 'lock down',
+               'next phase': 'lock down',
                'condition': {'type': 'cumulative cases exceeds',
                              'count': 200}},
     'lock down': {'daily contacts': 20,
@@ -195,12 +195,12 @@ for day in range(SIMULATION_DAYS):
     active_cases.append(active_cases[day] + new_cases - new_recoveries - new_deaths)
     if active_cases[day + 1] > maximum_active_cases:
         maximum_active_cases = active_cases[day + 1]
-        maximum_active_cases_day = day
+        maximum_active_cases_day = day + 1
     cumulative_recoveries.append(cumulative_recoveries[day] + new_recoveries)
     cumulative_deaths.append(cumulative_deaths[day] + new_deaths)
     if maximum_daily_new_cases < new_cases:
         maximum_daily_new_cases = new_cases
-        maximum_new_cases_day = day
+        maximum_new_cases_day = day + 1
         maximum_new_cases_cumulative = cumulative_cases[day + 1]
     daily_new_cases.append(new_cases)
     daily_new_active_cases.append(new_cases - new_recoveries - new_deaths)

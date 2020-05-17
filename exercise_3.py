@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import simulate as s
 
-
 SIMULATION_PHASES = {
     'normal': {'daily contacts': 50,
                'transmission probability': 0.015,
@@ -48,20 +47,33 @@ HEALTH_STATES = {'well': {'days at state': -1,
                           'can be infected': False}}
 
 
-def set_simulation_phase(phase_key, start_day):
-    phase = SIMULATION_PHASES[phase_key]
-    has_next = 'next phase' in phase and 'condition' in phase
-    contacts = phase['daily contacts']
-    transmissivity = phase['transmission probability']
-    phase['Ro'] = contacts * transmissivity \
+def set_simulation_phase(sim, phase_key, start_day):
+    phase = sim[s.CURRENT_PHASE] = SIMULATION_PHASES[phase_key]
+    sim[s.HAS_NEXT_PHASE] = 'next phase' in phase and 'condition' in phase
+    sim[s.CURRENT_DAILY_CONTACTS] = phase['daily contacts']
+    sim[s.CURRENT_TRANSMISSION_PROBABILITY] = phase['transmission probability']
+    phase['Ro'] = sim[s.CURRENT_DAILY_CONTACTS] * sim[s.CURRENT_TRANSMISSION_PROBABILITY] \
                   * HEALTH_STATES['contagious']['days at state']
     phase['start day'] = start_day
-    return phase, has_next, contacts, transmissivity
+    return
+
+
+def daily_phase_evaluation(sim, day):
+    if sim[s.HAS_NEXT_PHASE]:
+        condition = sim[s.CURRENT_PHASE]['condition']
+        advance = False
+        if condition['type'] == 'cumulative cases exceeds':
+            advance = sim[s.CUMULATIVE_CASES_SERIES][day + 1] >= condition['count']
+        elif condition['type'] == 'days after max active':
+            advance = day - sim[s.MAX_ACTIVE_CASES] >= condition['days']
+        # Add new conditions here
+        if advance:
+            print(f' advance to {sim[s.CURRENT_PHASE]["next phase"]} on day {day}')
+            set_simulation_phase(sim, sim[s.CURRENT_PHASE]['next phase'], day)
 
 
 sim_state = s.create_initial_state(HEALTH_STATES, SIMULATION_PHASES)
-sim_state[s.CURRENT_PHASE], sim_state[s.HAS_NEXT_PHASE], sim_state[s.CURRENT_DAILY_CONTACTS], \
-    sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] = set_simulation_phase('normal', 0)
+set_simulation_phase(sim_state, 'normal', 0)
 # This line declares 4 key variables for our simulation:
 # simulation_state = SIMULATION_STATES['normal']
 # '''The current simulation state'''
@@ -84,8 +96,8 @@ start = time.time()
 # population:
 for person_id in range(sim_state[s.POPULATION]):
     sim_state[s.PEOPLE].append({'id': person_id,
-                   'state': 'well',
-                   'days': 1})
+                                'state': 'well',
+                                'days': 1})
 
 # OK, now I've got a healthy population - let's infect the 'INITIAL_INFECTION',
 # randomly - these may be people who came from an infected area to their second house,
@@ -99,6 +111,7 @@ for _ in range(sim_state[s.INITIAL_INFECTION]):
 # infected person, then we will guess whether the person was infected based on
 # the TRANSMISSION_POSSIBILITY
 current_population = sim_state[s.POPULATION]
+
 for day in range(sim_state[s.SIMULATION_DAYS]):
     # initialize statistics for today
     new_cases = 0
@@ -173,20 +186,7 @@ for day in range(sim_state[s.SIMULATION_DAYS]):
     sim_state[s.NEW_DEATHS_SERIES].append(new_deaths)
 
     # Does the simulation state change?
-    if sim_state[s.HAS_NEXT_PHASE]:
-        condition = sim_state[s.CURRENT_PHASE]['condition']
-        if condition['type'] == 'cumulative cases exceeds':
-            if sim_state[s.CUMULATIVE_CASES_SERIES][day + 1] >= condition['count']:
-                print(f' advance to {sim_state[s.CURRENT_PHASE]["next phase"]} on day {day}')
-                sim_state[s.CURRENT_PHASE], sim_state[s.HAS_NEXT_PHASE], sim_state[s.CURRENT_DAILY_CONTACTS], \
-                sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] = \
-                    set_simulation_phase(sim_state[s.CURRENT_PHASE]['next phase'], day)
-        elif condition['type'] == 'days after max active':
-            if day - sim_state[s.MAX_ACTIVE_CASES] >= condition['days']:
-                print(f' advance to {sim_state[s.CURRENT_PHASE]["next phase"]} on day {day}')
-                sim_state[s.CURRENT_PHASE], sim_state[s.HAS_NEXT_PHASE], sim_state[s.CURRENT_DAILY_CONTACTS], \
-                sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] = \
-                    set_simulation_phase(sim_state[s.CURRENT_PHASE]['next phase'], day)
+    daily_phase_evaluation(sim_state, day)
 
 # print the results of the simulation
 print(f'Simulation Summary:')

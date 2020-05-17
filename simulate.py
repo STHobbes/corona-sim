@@ -3,9 +3,9 @@ The code that performs the actual simulation.
 '''
 
 # simulation defaults
-DEFAULT_SIMULATION_DAYS = 211
 DEFAULT_POPULATION = 50000
 DEFAULT_INITIAL_INFECTION = 20
+DEFAULT_SIMULATION_DAYS = 211
 # define the keys for the simulation state
 # some of the basic stuff
 SIMULATION_DAYS = 'simulation_days'
