@@ -1,6 +1,7 @@
 import json
 import random
 import time
+import numpy as np
 import matplotlib.pyplot as plt
 
 POPULATION = 50000
@@ -9,13 +10,13 @@ POPULATION = 50000
 INITIAL_INFECTION = 20
 '''The initial infection is the number of initially infected individuals in the population.'''
 
-SIMULATION_DAYS = 200
+SIMULATION_DAYS = 211
 '''The number of days to run the simulation.'''
 
 SIMULATION_PHASES = {
     'normal': {'daily contacts': 50,
                'transmission probability': 0.015,
-               'next phase': 'lock down',
+               # 'next phase': 'lock down',
                'condition': {'type': 'cumulative cases exceeds',
                              'count': 200}},
     'lock down': {'daily contacts': 20,
@@ -287,7 +288,7 @@ data = {'simulation_days': SIMULATION_DAYS,
         'daily_new_active_cases_series': daily_new_active_cases,
         'daily_new_recoveries_series': daily_new_recoveries,
         'daily_new_deaths_series': daily_new_deaths}
-with open("./data/expl2/test_200.json", "w") as fw:
+with open("./data/expl2/test_x.json", "w") as fw:
     json.dump(data, fw, indent=2)
 
 # plot the results
@@ -298,6 +299,8 @@ plt.title(
     f'{daily_contacts} daily contacts @ {transmission_probability}')
 plt.xlabel('days')
 plt.ylabel('cumulative number')
+plt.xticks(np.arange(0, 211, 14))
+plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
 plt.plot(cumulative_cases, label='cumulative cases')
 plt.plot(active_cases, label='active cases')
 plt.plot(cumulative_recoveries, label='recoveries')
@@ -313,6 +316,8 @@ plt.title(
     f'{daily_contacts} daily contacts @ {transmission_probability}')
 plt.xlabel('days')
 plt.ylabel('daily number')
+plt.xticks(np.arange(0, 211, 14))
+plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
 plt.plot(daily_new_cases, label='daily new cases')
 plt.plot(daily_new_active_cases, label='daily active cases')
 plt.plot(daily_new_recoveries, label='daily recoveries')
