@@ -14,6 +14,7 @@ INITIAL_INFECTION = 'initial_infection'
 PEOPLE = 'people'
 HEALTH_STATES = 'health_states'
 PHASES = 'phases'
+DAilY_PHASE_EVALUATION = 'daily_phase_evaluation'
 
 # Properties for the simulation of the current day
 CURRENT_PHASE = 'current_phase'
@@ -47,7 +48,8 @@ NEW_DEATHS_SERIES = 'new_deaths_series'
 
 # The parameters for today
 
-def create_initial_state(health_states, phases,
+def create_initial_state(health_states,
+                         phases, daily_phase_evaluation,
                          simulation_days=DEFAULT_SIMULATION_DAYS,
                          population=DEFAULT_POPULATION,
                          initial_infection=DEFAULT_INITIAL_INFECTION):
@@ -58,6 +60,7 @@ def create_initial_state(health_states, phases,
         PEOPLE: [],
         HEALTH_STATES: health_states,
         PHASES: phases,
+        DAilY_PHASE_EVALUATION: daily_phase_evaluation,
         MAX_NEW_DAILY_CASES: 0,
         MAX_NEW_DAILY_DIAGNOSED_CASES: 0,
         MAX_ACTIVE_CASES: 0,
