@@ -55,7 +55,7 @@ HEALTH_STATES = {
 
 
 def set_initial_phase(sim):
-    set_simulation_phase(sim_state, 'normal', 0)
+    set_simulation_phase(sim, 'normal', 0)
 
 
 def set_simulation_phase(sim, phase_key, start_day):

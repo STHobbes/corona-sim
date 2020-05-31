@@ -4,24 +4,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import simulate as s
-
-SIMULATION_PHASES = {
-    'normal': {'daily contacts': 50,
-               'transmission probability': 0.015,
-               'testing probability': 0.20,
-               'next phase': 'lock down',
-               'condition': {'type': 'cumulative confirmed cases exceeds',
-                             'count': 200}},
-    'lock down': {'daily contacts': 20,
-                  'transmission probability': 0.01,
-                  'testing probability': 0.30,
-                  'next phase': 'reopen',
-                  'condition': {'type': 'days after confirmed max active',
-                                'days': 21}},
-    'reopen': {'daily contacts': 25,
-               'transmission probability': 0.012,
-               'testing probability': 0.40}
-}
+import phase
 
 '''These are the 'phases' the simulation goes through. Phases generally mean a change
 in the conditions under which the simulation is running. Often these represent
@@ -54,44 +37,12 @@ HEALTH_STATES = {
 }
 
 
-def set_initial_phase(sim):
-    set_simulation_phase(sim_state, 'normal', 0)
-
-
-def set_simulation_phase(sim, phase_key, start_day):
-    phase = sim[s.CURRENT_PHASE] = SIMULATION_PHASES[phase_key]
-    sim[s.HAS_NEXT_PHASE] = 'next phase' in phase and 'condition' in phase
-    sim[s.CURRENT_DAILY_CONTACTS] = phase['daily contacts']
-    sim[s.CURRENT_TRANSMISSION_PROBABILITY] = phase['transmission probability']
-    sim[s.CURRENT_TESTING_PROBABILITY] = phase.get('testing probability', 1.0)
-    phase['Ro'] = sim[s.CURRENT_DAILY_CONTACTS] * sim[s.CURRENT_TRANSMISSION_PROBABILITY] \
-                  * HEALTH_STATES['contagious']['days at state']
-    phase['start day'] = start_day
-    return
-
-
-def daily_phase_evaluation(sim, day):
-    if sim[s.HAS_NEXT_PHASE]:
-        condition = sim[s.CURRENT_PHASE]['condition']
-        advance = False
-        if condition['type'] == 'cumulative cases exceeds':
-            advance = sim[s.CUMULATIVE_CASES_SERIES][day] >= condition['count']
-        elif condition['type'] == 'cumulative confirmed cases exceeds':
-            advance = sim[s.CUMULATIVE_CONFIRMED_CASES_SERIES][day] >= condition['count']
-        elif condition['type'] == 'days after max active':
-            advance = day - sim[s.MAX_ACTIVE_CASES] > condition['days']
-        elif condition['type'] == 'days after confirmed max active':
-            advance = day - sim[s.MAX_ACTIVE_CONFIRMED_CASES] > condition['days']
-        # Add new conditions here
-        if advance:
-            print(f' advance to {sim[s.CURRENT_PHASE]["next phase"]} on day {day}')
-            set_simulation_phase(sim, sim[s.CURRENT_PHASE]['next phase'], day)
-
-
 sim_state = s.create_initial_state(
     HEALTH_STATES,
-    SIMULATION_PHASES, daily_phase_evaluation)
-set_initial_phase(sim_state)
+    phase.SIMULATION_PHASES, phase.daily_phase_evaluation,
+    population=5000)
+sim_state[s.CURRENT_DAILY_CONTACTS] = HEALTH_STATES['contagious']['days at state']
+phase.set_initial_phase(sim_state)
 # This line declares 4 key variables for our simulation:
 # simulation_state = SIMULATION_STATES['normal']
 # '''The current simulation state'''
@@ -232,7 +183,7 @@ print(f'    Population:                {sim_state[s.POPULATION]:16,}')
 print(f'    Initial Infection:         {sim_state[s.INITIAL_INFECTION]:16,}')
 print(f'    Days Contagious:           {HEALTH_STATES["contagious"]["days at state"]:16,}')
 print(f'    Phases:')
-for key, value in SIMULATION_PHASES.items():
+for key, value in phase.SIMULATION_PHASES.items():
     if 'start day' in value:
         print(f'      {key}:')
         print(f'        start day:               {value["start day"]:14,}')
@@ -262,7 +213,7 @@ print(f'\nSimulation time: {time.time() - start:.4f}sec\n')
 
 # save the data from this simulation to a file
 phases_data = {}
-for key, value in SIMULATION_PHASES.items():
+for key, value in phase.SIMULATION_PHASES.items():
     if 'start day' in value:
         phases_data[key] = {
             'start_day': value['start day'],
@@ -302,8 +253,8 @@ plt.xlabel('days')
 plt.ylabel('cumulative number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-if 'start day' in SIMULATION_PHASES['lock down']:
-    start_day = SIMULATION_PHASES['lock down']['start day']
+if 'start day' in phase.SIMULATION_PHASES['lock down']:
+    start_day = phase.SIMULATION_PHASES['lock down']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
@@ -312,8 +263,8 @@ if 'start day' in SIMULATION_PHASES['lock down']:
                  sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
                 label='lock down')
-if 'start day' in SIMULATION_PHASES['reopen']:
-    start_day = SIMULATION_PHASES['reopen']['start day']
+if 'start day' in phase.SIMULATION_PHASES['reopen']:
+    start_day = phase.SIMULATION_PHASES['reopen']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
@@ -341,8 +292,8 @@ plt.xlabel('days')
 plt.ylabel('daily number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-if 'start day' in SIMULATION_PHASES['lock down']:
-    start_day = SIMULATION_PHASES['lock down']['start day']
+if 'start day' in phase.SIMULATION_PHASES['lock down']:
+    start_day = phase.SIMULATION_PHASES['lock down']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.NEW_CASES_SERIES][start_day],
                  sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
@@ -351,8 +302,8 @@ if 'start day' in SIMULATION_PHASES['lock down']:
                  sim_state[s.NEW_RECOVERIES_SERIES][start_day],
                  sim_state[s.NEW_DEATHS_SERIES][start_day]],
                 label='lock down')
-if 'start day' in SIMULATION_PHASES['reopen']:
-    start_day = SIMULATION_PHASES['reopen']['start day']
+if 'start day' in phase.SIMULATION_PHASES['reopen']:
+    start_day = phase.SIMULATION_PHASES['reopen']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.NEW_CASES_SERIES][start_day],
                  sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
