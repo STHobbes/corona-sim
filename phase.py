@@ -1,3 +1,7 @@
+"""These are the 'phases' the simulation goes through. Phases generally mean a change
+in the conditions under which the simulation is running. Often these represent
+mandated changes in behaviour of the population in effort to try to affect what
+would be the normal path of the simulation."""
 import simulate as s
 
 SIMULATION_PHASES = {
@@ -19,6 +23,7 @@ SIMULATION_PHASES = {
 }
 """
 """
+
 
 
 def set_initial_phase(sim):
