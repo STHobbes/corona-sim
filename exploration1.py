@@ -93,7 +93,7 @@ plt.clf()
 plt.title(
     f'Active Cases Simulation\n for various Ro, population 10000')
 plt.xlabel('days')
-plt.ylabel('cumulative number')
+plt.ylabel('daily number')
 plt.plot(R0_6_00_pop_10000['active_cases_series'], label='Ro = 6.0')
 plt.plot(R0_4_00_pop_10000['active_cases_series'], label='Ro = 4.0')
 plt.plot(R0_3_00_pop_10000['active_cases_series'], label='Ro = 3.0')

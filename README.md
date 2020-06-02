@@ -22,7 +22,8 @@ solution is in `exercise_1.py` file.
 ## Exploration 1
 Using the `exercise_1.py` program to explore the metric <i>R<sub>0</sub></i> in the spread of an infectious
 disease. Data generated from this exploration is in `./data/expl1/*`, and the program `exploration1.py`
-graphs that data.
+graphs that data. An example of the simulations for various <i>R<sub>0</sub></i> in a population of 10,00 is:
+![Flatten the Curve](./resources/FlattenTheCurve.jpg "Flatten the Curve")
 
 ## Exercise 2
 Starts with a copy of `exerecise_1.py` as `exercise_2.py`. In this copy we: makes a few modeling corrections;

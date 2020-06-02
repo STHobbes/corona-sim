@@ -16,6 +16,9 @@ HOSPITALIZED_PEOPLE = 'hospitalized_people'
 HEALTH_STATES = 'health_states'
 PHASES = 'phases'
 DAilY_PHASE_EVALUATION = 'daily_phase_evaluation'
+DAILY_HEALTH_EVALUATION = 'daily_health_evaluation'
+DAILY_EVALUATE_CONTACTS = 'daily_evaluate_contacts'
+UPDATE_TESTING_RATES = 'update_testing_rates'
 
 # Properties for the simulation of the current day
 CURRENT_PHASE = 'current_phase'
@@ -30,8 +33,9 @@ DAILY_POPULATION = 'today_population'
 DAILY_CASES = 'today_cases'
 DAILY_CONFIRMED_CASES = 'today_confirmed_cases'
 DAILY_RECOVERIES = 'today_recoveries'
-DAILY_CONFORMED_RECOVERIES = 'today_confirmed_recoveries'
+DAILY_CONFIRMED_RECOVERIES = 'today_confirmed_recoveries'
 DAILY_DEATHS = 'today_deaths'
+DAILY_CONFIRMED_DEATHS = 'today_confirmed_deaths'
 DAILY_HOSPITALIZATIONS = 'today_hospitalizations'
 DAILY_ICU = 'today_ICU'
 
@@ -47,7 +51,9 @@ MAX_ACTIVE_ICU = 'max_active_ICU_day'
 CUMULATIVE_CASES_SERIES = 'cumulative_cases_series'
 CUMULATIVE_CONFIRMED_CASES_SERIES = 'cumulative_confirmed_cases_series'
 CUMULATIVE_RECOVERIES_SERIES = 'cumulative_recoveries_series'
-CUMULATIVE_DEATHS_SERIES = 'cumulative_deaths_series'
+CUMULATIVE_CONFIRMED_RECOVERIES_SERIES = 'cumulative_confirmed_recoveries_series'
+CUMULATIVE_DEATHS_SERIES = 'cumulative_confirmed_deaths_series'
+CUMULATIVE_CONFIRMED_DEATHS_SERIES = 'cumulative_deaths_series'
 ACTIVE_CASES_SERIES = 'active_cases_series'
 ACTIVE_CONFIRMED_CASES_SERIES = 'active_confirmed_cases_series'
 ACTIVE_HOSPITALIZED_CASES_SERIES = 'active_hospitalized_cases_series'
@@ -60,9 +66,8 @@ NEW_RECOVERIES_SERIES = 'new_recoveries_series'
 NEW_DEATHS_SERIES = 'new_deaths_series'
 
 
-# The parameters for today
-
-def create_initial_state(health_states,
+def create_initial_state(health_states, daily_health_evaluation,
+                         evaluate_contacts, update_testing_rates,
                          phases, daily_phase_evaluation,
                          simulation_days=DEFAULT_SIMULATION_DAYS,
                          population=DEFAULT_POPULATION,
@@ -74,6 +79,9 @@ def create_initial_state(health_states,
         PEOPLE: [],
         HOSPITALIZED_PEOPLE: [],
         HEALTH_STATES: health_states,
+        DAILY_HEALTH_EVALUATION: daily_health_evaluation,
+        DAILY_EVALUATE_CONTACTS: evaluate_contacts,
+        UPDATE_TESTING_RATES: update_testing_rates,
         PHASES: phases,
         DAilY_PHASE_EVALUATION: daily_phase_evaluation,
         MAX_NEW_DAILY_CASES: 0,
@@ -85,7 +93,9 @@ def create_initial_state(health_states,
         CUMULATIVE_CASES_SERIES: [initial_infection],
         CUMULATIVE_CONFIRMED_CASES_SERIES: [0],
         CUMULATIVE_RECOVERIES_SERIES: [0],
+        CUMULATIVE_CONFIRMED_RECOVERIES_SERIES: [0],
         CUMULATIVE_DEATHS_SERIES: [0],
+        CUMULATIVE_CONFIRMED_DEATHS_SERIES: [0],
         ACTIVE_CASES_SERIES: [initial_infection],
         ACTIVE_CONFIRMED_CASES_SERIES: [0],
         ACTIVE_HOSPITALIZED_CASES_SERIES: [0],
@@ -98,3 +108,85 @@ def create_initial_state(health_states,
         NEW_DEATHS_SERIES: [0]
     }
     return sim_state
+
+
+def run_simulation(ss):
+    for day in range(ss[SIMULATION_DAYS]):
+        # Does the simulation state change today based on the
+        # numbers at the beginning of the day??
+        if ss[DAilY_PHASE_EVALUATION](ss, day):
+            ss[UPDATE_TESTING_RATES](ss[CURRENT_TESTING_PROBABILITY])
+
+        # initialize statistics for today
+        ss[DAILY_CASES] = 0
+        ss[DAILY_CONFIRMED_CASES] = 0
+        ss[DAILY_RECOVERIES] = 0
+        ss[DAILY_CONFIRMED_RECOVERIES] = 0
+        ss[DAILY_DEATHS] = 0
+        ss[DAILY_CONFIRMED_DEATHS] = 0
+        ss[DAILY_HOSPITALIZATIONS] = 0
+        ss[DAILY_ICU] = 0
+        # update the health state of every person
+        for person in reversed(ss[HOSPITALIZED_PEOPLE]):
+            ss[DAILY_HEALTH_EVALUATION](ss, person)
+        for person in reversed(ss[PEOPLE]):
+            ss[DAILY_HEALTH_EVALUATION](ss, person)
+
+        for person in ss[PEOPLE]:
+            # can this person infect, or be infected - if so, daily contacts
+            # must be traced to see if there is an infection event
+            ss[DAILY_EVALUATE_CONTACTS](ss, person, ss[PEOPLE])
+
+        # append the today's statistics to the lists
+        # new_confirmed_cases = sim_state[s.CURRENT_TESTING_PROBABILITY] * sim_state[s.DAILY_CASES]
+        # new_confirmed_recoveries = sim_state[s.CURRENT_TESTING_PROBABILITY] * sim_state[s.DAILY_RECOVERIES]
+        ss[CUMULATIVE_CASES_SERIES].append(
+            ss[CUMULATIVE_CASES_SERIES][day] + ss[DAILY_CASES])
+        ss[CUMULATIVE_CONFIRMED_CASES_SERIES].append(
+            ss[CUMULATIVE_CONFIRMED_CASES_SERIES][day] + ss[DAILY_CONFIRMED_CASES])
+
+        ss[ACTIVE_CASES_SERIES].append(
+            ss[ACTIVE_CASES_SERIES][day] + ss[DAILY_CASES]
+            - ss[DAILY_RECOVERIES] - ss[DAILY_DEATHS])
+        if ss[ACTIVE_CASES_SERIES][day + 1] > ss[ACTIVE_CASES_SERIES][ss[MAX_ACTIVE_CASES]]:
+            ss[MAX_ACTIVE_CASES] = day + 1
+        ss[ACTIVE_CONFIRMED_CASES_SERIES].append(
+            ss[ACTIVE_CONFIRMED_CASES_SERIES][day] + ss[DAILY_CONFIRMED_CASES]
+            - ss[DAILY_CONFIRMED_RECOVERIES] - ss[DAILY_CONFIRMED_DEATHS])
+        if ss[ACTIVE_CONFIRMED_CASES_SERIES][day + 1] > \
+                ss[ACTIVE_CONFIRMED_CASES_SERIES][ss[MAX_ACTIVE_CONFIRMED_CASES]]:
+            ss[MAX_ACTIVE_CONFIRMED_CASES] = day + 1
+        ss[ACTIVE_HOSPITALIZED_CASES_SERIES].append(
+            ss[ACTIVE_HOSPITALIZED_CASES_SERIES][day] + ss[DAILY_HOSPITALIZATIONS])
+        if ss[ACTIVE_HOSPITALIZED_CASES_SERIES][day + 1] > \
+                ss[ACTIVE_HOSPITALIZED_CASES_SERIES][ss[MAX_ACTIVE_HOSPITALIZATIONS]]:
+            ss[MAX_ACTIVE_HOSPITALIZATIONS] = day + 1
+        ss[ACTIVE_ICU_CASES_SERIES].append(
+            ss[ACTIVE_ICU_CASES_SERIES][day] + ss[DAILY_ICU])
+        if ss[ACTIVE_ICU_CASES_SERIES][day + 1] > \
+                ss[ACTIVE_ICU_CASES_SERIES][ss[MAX_ACTIVE_ICU]]:
+            ss[MAX_ACTIVE_ICU] = day + 1
+
+        ss[CUMULATIVE_RECOVERIES_SERIES].append(
+            ss[CUMULATIVE_RECOVERIES_SERIES][day] + ss[DAILY_RECOVERIES])
+        ss[CUMULATIVE_CONFIRMED_RECOVERIES_SERIES].append(
+            ss[CUMULATIVE_CONFIRMED_RECOVERIES_SERIES][day] + ss[DAILY_CONFIRMED_RECOVERIES])
+        ss[CUMULATIVE_DEATHS_SERIES].append(
+            ss[CUMULATIVE_DEATHS_SERIES][day] + ss[DAILY_DEATHS])
+        ss[CUMULATIVE_CONFIRMED_DEATHS_SERIES].append(
+            ss[CUMULATIVE_CONFIRMED_DEATHS_SERIES][day] + ss[DAILY_CONFIRMED_DEATHS])
+
+        ss[NEW_CASES_SERIES].append(ss[DAILY_CASES])
+        if ss[NEW_CASES_SERIES][day + 1] > ss[NEW_CASES_SERIES][ss[MAX_NEW_DAILY_CASES]]:
+            ss[MAX_NEW_DAILY_CASES] = day + 1
+        ss[NEW_CONFIRMED_CASES_SERIES].append(ss[DAILY_CONFIRMED_CASES])
+        if ss[NEW_CONFIRMED_CASES_SERIES][day + 1] > \
+                ss[NEW_CONFIRMED_CASES_SERIES][ss[MAX_NEW_DAILY_CONFIRMED_CASES]]:
+            ss[MAX_NEW_DAILY_CONFIRMED_CASES] = day + 1
+
+        ss[NEW_ACTIVE_CASES_SERIES].append(
+            ss[DAILY_CASES] - ss[DAILY_RECOVERIES] - ss[DAILY_DEATHS])
+        ss[NEW_CONFIRMED_ACTIVE_CASES_SERIES].append(
+            ss[DAILY_CONFIRMED_CASES] - ss[DAILY_CONFIRMED_RECOVERIES] - ss[DAILY_DEATHS])
+        ss[NEW_RECOVERIES_SERIES].append(ss[DAILY_RECOVERIES])
+        ss[NEW_DEATHS_SERIES].append(ss[DAILY_DEATHS])

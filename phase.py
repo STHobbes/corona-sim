@@ -25,7 +25,6 @@ SIMULATION_PHASES = {
 """
 
 
-
 def set_initial_phase(sim):
     """
 
@@ -49,7 +48,7 @@ def set_simulation_phase(sim, phase_key, start_day):
     sim[s.CURRENT_TRANSMISSION_PROBABILITY] = phase['transmission probability']
     sim[s.CURRENT_TESTING_PROBABILITY] = phase.get('testing probability', 1.0)
     phase['Ro'] = sim[s.CURRENT_DAILY_CONTACTS] * sim[s.CURRENT_TRANSMISSION_PROBABILITY] \
-                  * sim[s.CURRENT_DAILY_CONTACTS]
+                  * sim[s.CURRENT_CONTAGIOUS_DAYS]
     phase['start day'] = start_day
     return
 
@@ -76,3 +75,4 @@ def daily_phase_evaluation(sim, day):
         if advance:
             print(f' advance to {sim[s.CURRENT_PHASE]["next phase"]} on day {day}')
             set_simulation_phase(sim, sim[s.CURRENT_PHASE]['next phase'], day)
+            return True
