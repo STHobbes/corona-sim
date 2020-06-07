@@ -31,6 +31,7 @@ add data output to a file; and add capability to specify a sequence of phases in
 are activated by meeting specified conditions - like the number cases has reached a threshold, or some
 number of days since the start of the simulation, or number of days since peak new cases. Each phase
 defines the parameters that produce the <i>R<sub>0</sub></i> for that phase.
+![Phased Simulation](./resources/PhasedSimulation.jpg "Phased Simulation")
 
 ## Exploration 2:
 Using some assumptions about measures like travel bans, stay and home, and physical distancing use the
@@ -40,13 +41,22 @@ during, the stay at home as it affects the dynamics of reopening. Data generated
 in `./data/expl2/*`, and the program `exploration2.py` graphs that data. `exploration2_old.py` was the
 original high copy and paste version, and `exploration2.py` the refactored version to help us move
 forward with less work and more consistency.
+![Lock Down Timing](./resources/LockdownTiming.jpg "Lock Down Timing")
 
 ## Exercise 3:
 A refactoring of exercise 2 code to make it easier to test different scenarios and build run sets for
 different scenarios. As we do this we will look at the split between the number of confirmed cases and
 the estimated number of cases. We will also add a projected hospitalized and critically ill, and a way
-to add events like a convention, weekend party, concert, etc.
-
+to add events like a convention, weekend party, concert, etc. We had a lot of ambitions here, but are
+getting to the end of the school year, and have a new swerve drive base to program. So this is a bit
+condensed and broken into a number of steps:
+* `exercise_3a.py` - pull the simulation state into a separate `simulate.py` file , with all of the
+  keys defined as constants;
+* `exercise_3b.py` - pull the phase evaluation into functions so a `phases.py` file that specifically
+  deals with phases can be pulled out;
+* `exercise_3c.py` - we know testing is only detecting a fraction of the cases. Add testing probability
+  to the simulation;
+  
 ## Exploration 3:
 Explore what happens when you have a concert.
 

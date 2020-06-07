@@ -81,17 +81,17 @@ plot_run_set(test_set, 'active_cases_series',
 # scaling of the graphs gives us a better idea of what really happens.
 del test_set['no lock down']
 plot_run_set(test_set, 'cumulative_cases_series',
-             f'Cumulative Cases Simulation\n for various lock down timing',
+             f'Cumulative Cases Simulation, pop - 50,000\n for various lock down timing',
              ylabel='cumulative cases')
 
 plot_run_set(test_set, 'cumulative_deaths_series',
-             f'Cumulative Deaths Simulation\n for various lock down timing',
+             f'Cumulative Cases Simulation, pop - 50,000\n for various lock down timing',
              ylabel='cumulative deaths',
              events=([6, 11, 13, 15, 38, 43, 49, 46],
                      [2, 4, 8, 14, 19, 86, 238, 335]))
 
 plot_run_set(test_set, 'active_cases_series',
-             f'Active Cases Simulation\n for various lock down timing',
+             f'Active Cases Simulation, pop - 50,000\n for various lock down timing',
              ylabel='daily count',
              events=([6, 11, 13, 15, 38, 43, 49, 46],
                      [204, 1066, 2057, 3833, 74, 459, 675, 1084]))

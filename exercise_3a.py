@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import simulate as s
 
-
 SIMULATION_PHASES = {
     'normal': {'daily contacts': 50,
                'transmission probability': 0.015,
@@ -59,9 +58,10 @@ def set_simulation_phase(phase_key, start_day):
     return phase, has_next, contacts, transmissivity
 
 
-sim_state = s.create_initial_state(HEALTH_STATES, SIMULATION_PHASES)
+sim_state = s.create_initial_state(HEALTH_STATES, None, None, None, None, None,
+                                   SIMULATION_PHASES, None)
 sim_state[s.CURRENT_PHASE], sim_state[s.HAS_NEXT_PHASE], sim_state[s.CURRENT_DAILY_CONTACTS], \
-    sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] = set_simulation_phase('normal', 0)
+sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] = set_simulation_phase('normal', 0)
 # This line declares 4 key variables for our simulation:
 # simulation_state = SIMULATION_STATES['normal']
 # '''The current simulation state'''
@@ -84,8 +84,8 @@ start = time.time()
 # population:
 for person_id in range(sim_state[s.POPULATION]):
     sim_state[s.PEOPLE].append({'id': person_id,
-                   'state': 'well',
-                   'days': 1})
+                                'state': 'well',
+                                'days': 1})
 
 # OK, now I've got a healthy population - let's infect the 'INITIAL_INFECTION',
 # randomly - these may be people who came from an infected area to their second house,
@@ -189,6 +189,7 @@ for day in range(sim_state[s.SIMULATION_DAYS]):
                     set_simulation_phase(sim_state[s.CURRENT_PHASE]['next phase'], day)
 
 # print the results of the simulation
+phase_desc = ''
 print(f'Simulation Summary:')
 print(f'  Setup:')
 print(f'    Simulation Days:           {sim_state[s.SIMULATION_DAYS]:16,}')
@@ -203,6 +204,9 @@ for key, value in SIMULATION_PHASES.items():
         print(f'        contacts per day:        {value["daily contacts"]:14,}')
         print(f'        transmission probability:{value["transmission probability"]:14.4f}')
         print(f'        Ro:                      {value["Ro"]:14.4f}')
+        if phase_desc != '':
+            phase_desc += ', '
+        phase_desc += f'{key} Ro={value["Ro"]:.2f}'
 print(f'  Daily:')
 print(f'    Max Daily New Cases:')
 print(f'      On Day:                  {sim_state[s.MAX_NEW_DAILY_CASES]:16,}')
@@ -260,12 +264,21 @@ with open("./data/expl3/test_x.json", "w") as fw:
 # These are the cumulative stats
 plt.clf()
 plt.title(
-    f'Total Cases Simulation\n {sim_state[s.POPULATION]} population, '
-    f'{sim_state[s.CURRENT_DAILY_CONTACTS]} daily contacts @ {sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]}')
+    f'Total Cases Simulation, {sim_state[s.POPULATION]} population,\n '
+    f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('cumulative number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+for key, phase in SIMULATION_PHASES.items():
+    start_day = phase.get('start day', 0)
+    if start_day > 1:
+        plt.scatter([start_day, start_day, start_day, start_day],
+                    [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
+                     sim_state[s.ACTIVE_CASES_SERIES][start_day],
+                     sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
+                     sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
+                    label=key)
 plt.plot(sim_state[s.CUMULATIVE_CASES_SERIES], label='cumulative cases')
 plt.plot(sim_state[s.ACTIVE_CASES_SERIES], label='active cases')
 plt.plot(sim_state[s.CUMULATIVE_RECOVERIES_SERIES], label='recoveries')
@@ -277,12 +290,21 @@ plt.pause(0.1)
 # These are the daily stats
 plt.clf()
 plt.title(
-    f'Daily Cases Simulation\n {sim_state[s.POPULATION]} population, '
-    f'{sim_state[s.CURRENT_DAILY_CONTACTS]} daily contacts @ {sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]}')
+    f'Active Cases Simulation, {sim_state[s.POPULATION]} population,\n '
+    f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('daily number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+for key, phase in SIMULATION_PHASES.items():
+    start_day = phase.get('start day', 0)
+    if start_day > 1:
+        plt.scatter([start_day, start_day, start_day, start_day],
+                    [sim_state[s.NEW_CASES_SERIES][start_day],
+                     sim_state[s.NEW_ACTIVE_CASES_SERIES][start_day],
+                     sim_state[s.NEW_RECOVERIES_SERIES][start_day],
+                     sim_state[s.NEW_DEATHS_SERIES][start_day]],
+                    label=key)
 plt.plot(sim_state[s.NEW_CASES_SERIES], label='daily new cases')
 plt.plot(sim_state[s.NEW_ACTIVE_CASES_SERIES], label='daily active cases')
 plt.plot(sim_state[s.NEW_RECOVERIES_SERIES], label='daily recoveries')

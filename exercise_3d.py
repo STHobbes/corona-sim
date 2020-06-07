@@ -4,7 +4,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import simulate as s
-import phase
+import phases
 
 '''These are the 'phases' the simulation goes through. Phases generally mean a change
 in the conditions under which the simulation is running. Often these represent
@@ -36,6 +36,9 @@ HEALTH_STATES = {
              'can be infected': False}
 }
 
+
+def get_mean_infectious_days():
+    return HEALTH_STATES['contagious']['days at state']
 
 def set_default_health_state(person):
     person['state'] = 'well'
@@ -108,12 +111,16 @@ def evaluate_contacts(sim_state, person, population):
                     advance_health_state(sim_state, contact, HEALTH_STATES[contact['state']])
 
 
+phases.read_from_file('./data/ex2_phases.json')
+
 sim_state = s.create_initial_state(
-    HEALTH_STATES,
-    phase.SIMULATION_PHASES, phase.daily_phase_evaluation,
+    HEALTH_STATES, set_default_health_state,
+    set_initial_infected_state, evaluate_health_for_day,
+    evaluate_contacts, None,
+    phases.SIMULATION_PHASES, phases.daily_phase_evaluation,
     population=5000)
-sim_state[s.CURRENT_DAILY_CONTACTS] = HEALTH_STATES['contagious']['days at state']
-phase.set_initial_phase(sim_state)
+sim_state[s.CURRENT_CONTAGIOUS_DAYS] = get_mean_infectious_days()
+phases.set_initial_phase(sim_state)
 
 random.seed(42)
 # Everything is setup, get the start time for the simulation
@@ -145,7 +152,7 @@ sim_state[s.DAILY_POPULATION] = sim_state[s.POPULATION]
 for day in range(sim_state[s.SIMULATION_DAYS]):
     # Does the simulation state change today based on the
     # numbers at the beginning of the day??
-    sim_state[s.DAilY_PHASE_EVALUATION](sim_state, day)
+    sim_state[s.DAILY_PHASE_EVALUATION](sim_state, day)
     # initialize statistics for today
     sim_state[s.DAILY_CASES] = 0
     sim_state[s.DAILY_DEATHS] = 0
@@ -204,7 +211,7 @@ print(f'    Population:                {sim_state[s.POPULATION]:16,}')
 print(f'    Initial Infection:         {sim_state[s.INITIAL_INFECTION]:16,}')
 print(f'    Days Contagious:           {HEALTH_STATES["contagious"]["days at state"]:16,}')
 print(f'    Phases:')
-for key, value in phase.SIMULATION_PHASES.items():
+for key, value in phases.SIMULATION_PHASES.items():
     if 'start day' in value:
         print(f'      {key}:')
         print(f'        start day:               {value["start day"]:14,}')
@@ -234,7 +241,7 @@ print(f'\nSimulation time: {time.time() - start:.4f}sec\n')
 
 # save the data from this simulation to a file
 phases_data = {}
-for key, value in phase.SIMULATION_PHASES.items():
+for key, value in phases.SIMULATION_PHASES.items():
     if 'start day' in value:
         phases_data[key] = {
             'start_day': value['start day'],
@@ -274,26 +281,18 @@ plt.xlabel('days')
 plt.ylabel('cumulative number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-if 'start day' in phase.SIMULATION_PHASES['lock down']:
-    start_day = phase.SIMULATION_PHASES['lock down']['start day']
-    plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
+for key, phase in phases.SIMULATION_PHASES.items():
+    start_day = phase.get('start day', 0)
+    if start_day > 1:
+        plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
                  sim_state[s.ACTIVE_CASES_SERIES][start_day],
                  sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
-                label='lock down')
-if 'start day' in phase.SIMULATION_PHASES['reopen']:
-    start_day = phase.SIMULATION_PHASES['reopen']['start day']
-    plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
-                [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
-                 sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
-                 sim_state[s.ACTIVE_CASES_SERIES][start_day],
-                 sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES][start_day],
-                 sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
-                 sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
-                label='reopen')
+                label=key)
+
 plt.plot(sim_state[s.CUMULATIVE_CASES_SERIES], label='cumulative cases')
 plt.plot(sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES], label='cumulative confirmed cases')
 plt.plot(sim_state[s.ACTIVE_CASES_SERIES], label='active cases')
@@ -313,26 +312,17 @@ plt.xlabel('days')
 plt.ylabel('daily number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-if 'start day' in phase.SIMULATION_PHASES['lock down']:
-    start_day = phase.SIMULATION_PHASES['lock down']['start day']
-    plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
+for key, phase in phases.SIMULATION_PHASES.items():
+    start_day = phase.get('start day', 0)
+    if start_day > 1:
+        plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.NEW_CASES_SERIES][start_day],
                  sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
                  sim_state[s.NEW_ACTIVE_CASES_SERIES][start_day],
                  sim_state[s.NEW_CONFIRMED_ACTIVE_CASES_SERIES][start_day],
                  sim_state[s.NEW_RECOVERIES_SERIES][start_day],
                  sim_state[s.NEW_DEATHS_SERIES][start_day]],
-                label='lock down')
-if 'start day' in phase.SIMULATION_PHASES['reopen']:
-    start_day = phase.SIMULATION_PHASES['reopen']['start day']
-    plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
-                [sim_state[s.NEW_CASES_SERIES][start_day],
-                 sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
-                 sim_state[s.NEW_ACTIVE_CASES_SERIES][start_day],
-                 sim_state[s.NEW_CONFIRMED_ACTIVE_CASES_SERIES][start_day],
-                 sim_state[s.NEW_RECOVERIES_SERIES][start_day],
-                 sim_state[s.NEW_DEATHS_SERIES][start_day]],
-                label='reopen')
+                label=key)
 plt.plot(sim_state[s.NEW_CASES_SERIES], label='daily new cases')
 plt.plot(sim_state[s.NEW_CONFIRMED_CASES_SERIES], label='daily new confirmed cases')
 plt.plot(sim_state[s.NEW_ACTIVE_CASES_SERIES], label='daily active cases')

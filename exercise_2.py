@@ -224,6 +224,7 @@ for day in range(SIMULATION_DAYS):
                     set_simulation_phase(simulation_phase['next phase'], day)
 
 # print the results of the simulation
+phase_desc = ''
 print(f'Simulation Summary:')
 print(f'  Setup:')
 print(f'    Simulation Days:           {SIMULATION_DAYS:16,}')
@@ -238,6 +239,9 @@ for key, value in SIMULATION_PHASES.items():
         print(f'        contacts per day:        {value["daily contacts"]:14,}')
         print(f'        transmission probability:{value["transmission probability"]:14.4f}')
         print(f'        Ro:                      {value["Ro"]:14.4f}')
+        if phase_desc != '':
+            phase_desc += ', '
+        phase_desc += f'{key} Ro={value["Ro"]:.2f}'
 print(f'  Daily:')
 print(f'    Max Daily New Cases:')
 print(f'      Number of Cases:         {maximum_daily_new_cases:16,}')
@@ -295,12 +299,28 @@ with open("./data/expl2/test_x.json", "w") as fw:
 # These are the cumulative stats
 plt.clf()
 plt.title(
-    f'Total Cases Simulation\n {POPULATION} population, '
-    f'{daily_contacts} daily contacts @ {transmission_probability}')
+    f'Total Cases Simulation {POPULATION} population,\n'
+    f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('cumulative number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+if 'start day' in SIMULATION_PHASES['lock down']:
+    start_day = SIMULATION_PHASES['lock down']['start day']
+    plt.scatter([start_day, start_day, start_day, start_day],
+                [cumulative_cases[start_day],
+                 active_cases[start_day],
+                 cumulative_recoveries[start_day],
+                 cumulative_deaths[start_day]],
+                label='lock down')
+if 'start day' in SIMULATION_PHASES['reopen']:
+    start_day = SIMULATION_PHASES['reopen']['start day']
+    plt.scatter([start_day, start_day, start_day, start_day],
+                [cumulative_cases[start_day],
+                 active_cases[start_day],
+                 cumulative_recoveries[start_day],
+                 cumulative_deaths[start_day]],
+                label='reopen')
 plt.plot(cumulative_cases, label='cumulative cases')
 plt.plot(active_cases, label='active cases')
 plt.plot(cumulative_recoveries, label='recoveries')
@@ -312,12 +332,28 @@ plt.pause(0.1)
 # These are the daily stats
 plt.clf()
 plt.title(
-    f'Daily Cases Simulation\n {POPULATION} population, '
-    f'{daily_contacts} daily contacts @ {transmission_probability}')
+    f'Daily Cases Simulation {POPULATION} population,\n'
+    f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('daily number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+if 'start day' in SIMULATION_PHASES['lock down']:
+    start_day = SIMULATION_PHASES['lock down']['start day']
+    plt.scatter([start_day, start_day, start_day, start_day],
+                [daily_new_cases[start_day],
+                 daily_new_active_cases[start_day],
+                 daily_new_recoveries[start_day],
+                 daily_new_deaths[start_day]],
+                label='lock down')
+if 'start day' in SIMULATION_PHASES['reopen']:
+    start_day = SIMULATION_PHASES['reopen']['start day']
+    plt.scatter([start_day, start_day, start_day, start_day],
+                [daily_new_cases[start_day],
+                 daily_new_active_cases[start_day],
+                 daily_new_recoveries[start_day],
+                 daily_new_deaths[start_day]],
+                label='reopen')
 plt.plot(daily_new_cases, label='daily new cases')
 plt.plot(daily_new_active_cases, label='daily active cases')
 plt.plot(daily_new_recoveries, label='daily recoveries')

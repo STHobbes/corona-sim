@@ -1,28 +1,41 @@
 """These are the 'phases' the simulation goes through. Phases generally mean a change
 in the conditions under which the simulation is running. Often these represent
 mandated changes in behaviour of the population in effort to try to affect what
-would be the normal path of the simulation."""
+would be the normal path of the simulation.
+
+Phases are described in a dictionary where the key is the name of the phase, and
+the value is a dictionary describing the values for the phase and the conditions
+for moving to the next phase.
+"""
+import json
 import simulate as s
 
 SIMULATION_PHASES = {
     'normal': {'daily contacts': 50,
                'transmission probability': 0.015,
-               'testing probability': 0.20,
-               'next phase': 'lock down',
-               'condition': {'type': 'cumulative confirmed cases exceeds',
-                             'count': 200}},
-    'lock down': {'daily contacts': 20,
-                  'transmission probability': 0.01,
-                  'testing probability': 0.30,
-                  'next phase': 'reopen',
-                  'condition': {'type': 'days after confirmed max active',
-                                'days': 21}},
-    'reopen': {'daily contacts': 25,
-               'transmission probability': 0.012,
-               'testing probability': 0.40}
+               'testing probability': 0.20
+               }
 }
+INITIAL_PHASE = 'normal'
 """
+The phases for the simulation. The default runs the simulation wit no phases
+and is what would happen if no action is taken to combat the infectious disease,
+people behave normally, and the disease runs its course.
 """
+
+
+def read_from_file(file_name):
+    """
+
+    :param file_name:
+    :return:
+    """
+    with open(file_name, "r") as data_file:
+        global SIMULATION_PHASES
+        global INITIAL_PHASE
+        phases_config = json.load(data_file)
+        SIMULATION_PHASES = phases_config['phases']
+        INITIAL_PHASE = phases_config['initial phase']
 
 
 def set_initial_phase(sim):
@@ -31,7 +44,7 @@ def set_initial_phase(sim):
     :param sim:
     :return:
     """
-    set_simulation_phase(sim, 'normal', 0)
+    set_simulation_phase(sim, INITIAL_PHASE, 0)
 
 
 def set_simulation_phase(sim, phase_key, start_day):

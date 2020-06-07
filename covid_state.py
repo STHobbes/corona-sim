@@ -97,26 +97,30 @@ HEALTH_STATES = {
     'dead': {
         'name': 'dead',
         'days at state': -1,
-        'can be infected': False
+        'can be infected': False,
+        'infectious': False,
     }
 }
 DEFAULT_HEALTH_STATE = HEALTH_STATES['well']
 
 
 def get_mean_infectious_days():
-    return HEALTH_STATES['presymptomatic']['days at state'] + HEALTH_STATES['mild']['days at state']
+    return (HEALTH_STATES['presymptomatic']['days at state'] + HEALTH_STATES['mild']['days at state']) * \
+           HEALTH_STATES['presymptomatic']['next state'][0][0]
 
 
-def set_default_health_state(person):
+def set_default_health_state(person, local):
     """
 
     :param person:
+    :param local
     :return:
     """
     person['state'] = DEFAULT_HEALTH_STATE
     person['tested'] = False
     person['days at state'] = 1
     person['state length'] = -1
+    person['local'] = local
     return
 
 
@@ -216,46 +220,47 @@ def advance_health_state(sim_state, person, old_health_state):
                 person['state length'] = \
                     int(np.random.lognormal(np.log(mean), np.log(math.sqrt(2.0))))
 
-            if health_state['name'] == 'infected':
-                sim_state[s.DAILY_CASES] += 1
-            elif health_state['name'] == 'dead':
-                # this person has died
-                sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
-                sim_state[s.DAILY_DEATHS] += 1
-                sim_state[s.DAILY_HOSPITALIZATIONS] -= 1
-                sim_state[s.DAILY_ICU] -= 1
-                if person['tested']:
-                    sim_state[s.DAILY_CONFIRMED_DEATHS] += 1
-                return
-            elif health_state['name'] == 'immune':
-                # This is someone who has recovered
-                if old_health_state['hospitalize']:
-                    sim_state[s.DAILY_HOSPITALIZATIONS] -= 1
-                    sim_state[s.PEOPLE].append(person)
-                    sim_state[s.DAILY_POPULATION] += 1
+            if person['local']:
+                if health_state['name'] == 'infected':
+                    sim_state[s.DAILY_CASES] += 1
+                elif health_state['name'] == 'dead':
+                    # this person has died
                     sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
-                    if old_health_state['icu']:
-                        sim_state[s.DAILY_ICU] -= 1
-                if person['tested']:
-                    sim_state[s.DAILY_CONFIRMED_RECOVERIES] += 1
-                sim_state[s.DAILY_RECOVERIES] += 1
+                    sim_state[s.DAILY_DEATHS] += 1
+                    sim_state[s.DAILY_HOSPITALIZATIONS] -= 1
+                    sim_state[s.DAILY_ICU] -= 1
+                    if person['tested']:
+                        sim_state[s.DAILY_CONFIRMED_DEATHS] += 1
+                    return
+                elif health_state['name'] == 'immune':
+                    # This is someone who has recovered
+                    if old_health_state['hospitalize']:
+                        sim_state[s.DAILY_HOSPITALIZATIONS] -= 1
+                        sim_state[s.PEOPLE].append(person)
+                        sim_state[s.DAILY_POPULATION] += 1
+                        sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
+                        if old_health_state['icu']:
+                            sim_state[s.DAILY_ICU] -= 1
+                    if person['tested']:
+                        sim_state[s.DAILY_CONFIRMED_RECOVERIES] += 1
+                    sim_state[s.DAILY_RECOVERIES] += 1
 
-            testing = health_state.get('testing', 0.0)
-            if testing > 0.0 and health_state['infectious'] and random.random() < testing:
-                person['tested'] = True
-                sim_state[s.DAILY_CONFIRMED_CASES] += 1
+                testing = health_state.get('testing', 0.0)
+                if testing > 0.0 and health_state['infectious'] and random.random() < testing:
+                    person['tested'] = True
+                    sim_state[s.DAILY_CONFIRMED_CASES] += 1
 
-            if health_state['hospitalize']:
-                # this person has moved into a state requiring hospitalization
-                sim_state[s.PEOPLE].remove(person)
-                sim_state[s.DAILY_POPULATION] -= 1
-                sim_state[s.HOSPITALIZED_PEOPLE].append(person)
-                sim_state[s.DAILY_HOSPITALIZATIONS] += 1
+                if health_state['hospitalize']:
+                    # this person has moved into a state requiring hospitalization
+                    sim_state[s.PEOPLE].remove(person)
+                    sim_state[s.DAILY_POPULATION] -= 1
+                    sim_state[s.HOSPITALIZED_PEOPLE].append(person)
+                    sim_state[s.DAILY_HOSPITALIZATIONS] += 1
 
-            if health_state['icu']:
-                # this is a person who has moved into a state requiring
-                # a ventilator (an ICU bed)
-                sim_state[s.DAILY_ICU] += 1
+                if health_state['icu']:
+                    # this is a person who has moved into a state requiring
+                    # a ventilator (an ICU bed)
+                    sim_state[s.DAILY_ICU] += 1
 
             if 0 <= person['state length'] < person['days at state']:
                 # This can happen because some states can be less than a day in length

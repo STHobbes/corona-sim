@@ -1,0 +1,31 @@
+{
+  "initial phase": "normal",
+  "phases": {
+    "normal": {
+      "name": "normal",
+      "daily contacts": 50,
+      "transmission probability": 0.015,
+      "testing probability": 0.20,
+      "next phase": "lock down",
+      "condition": {
+        "type": "cumulative confirmed cases exceeds",
+        "count": 200
+      }
+    },
+    "lock down": {
+      "daily contacts": 20,
+      "transmission probability": 0.01,
+      "testing probability": 0.30,
+      "next phase": "reopen",
+      "condition": {
+        "type": "days after confirmed max active",
+        "days": 21
+      }
+    },
+    "reopen": {
+      "daily contacts": 25,
+      "transmission probability": 0.012,
+      "testing probability": 0.40
+    }
+  }
+}

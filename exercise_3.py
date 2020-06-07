@@ -1,20 +1,22 @@
+import argparse
 import json
 import random
 import time
 import matplotlib.pyplot as plt
 import numpy as np
 import simulate as s
-import phase
+import phases
 import health_state as state
+
 
 
 sim_state = s.create_initial_state(
     state.HEALTH_STATES, state.evaluate_health_for_day,
     state.evaluate_contacts, state.set_testing_for_phase,
-    phase.SIMULATION_PHASES, phase.daily_phase_evaluation,
+    phases.SIMULATION_PHASES, phases.daily_phase_evaluation,
     population=50000)
 sim_state[s.CURRENT_CONTAGIOUS_DAYS] = state.get_mean_infectious_days()
-phase.set_initial_phase(sim_state)
+phases.set_initial_phase(sim_state)
 state.set_testing_for_phase(sim_state[s.CURRENT_TESTING_PROBABILITY])
 
 random.seed(42)
@@ -55,7 +57,7 @@ print(f'    Population:                {sim_state[s.POPULATION]:16,}')
 print(f'    Initial Infection:         {sim_state[s.INITIAL_INFECTION]:16,}')
 print(f'    Days Contagious:           {state.HEALTH_STATES["contagious"]["days at state"]:16,}')
 print(f'    Phases:')
-for key, value in phase.SIMULATION_PHASES.items():
+for key, value in phases.SIMULATION_PHASES.items():
     if 'start day' in value:
         print(f'      {key}:')
         print(f'        start day:               {value["start day"]:14,}')
@@ -96,7 +98,7 @@ print(f'\nSimulation time: {time.time() - start:.4f}sec\n')
 
 # save the data from this simulation to a file
 phases_data = {}
-for key, value in phase.SIMULATION_PHASES.items():
+for key, value in phases.SIMULATION_PHASES.items():
     if 'start day' in value:
         phases_data[key] = {
             'start_day': value['start day'],
@@ -141,8 +143,8 @@ plt.xlabel('days')
 plt.ylabel('cumulative number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-if 'start day' in phase.SIMULATION_PHASES['lock down']:
-    start_day = phase.SIMULATION_PHASES['lock down']['start day']
+if 'start day' in phases.SIMULATION_PHASES['lock down']:
+    start_day = phases.SIMULATION_PHASES['lock down']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
@@ -153,8 +155,8 @@ if 'start day' in phase.SIMULATION_PHASES['lock down']:
                  sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
                 label='lock down')
-if 'start day' in phase.SIMULATION_PHASES['reopen']:
-    start_day = phase.SIMULATION_PHASES['reopen']['start day']
+if 'start day' in phases.SIMULATION_PHASES['reopen']:
+    start_day = phases.SIMULATION_PHASES['reopen']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
                  sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
@@ -186,8 +188,8 @@ plt.xlabel('days')
 plt.ylabel('daily number')
 plt.xticks(np.arange(0, 211, 14))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-if 'start day' in phase.SIMULATION_PHASES['lock down']:
-    start_day = phase.SIMULATION_PHASES['lock down']['start day']
+if 'start day' in phases.SIMULATION_PHASES['lock down']:
+    start_day = phases.SIMULATION_PHASES['lock down']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.NEW_CASES_SERIES][start_day],
                  sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
@@ -196,8 +198,8 @@ if 'start day' in phase.SIMULATION_PHASES['lock down']:
                  sim_state[s.NEW_RECOVERIES_SERIES][start_day],
                  sim_state[s.NEW_DEATHS_SERIES][start_day]],
                 label='lock down')
-if 'start day' in phase.SIMULATION_PHASES['reopen']:
-    start_day = phase.SIMULATION_PHASES['reopen']['start day']
+if 'start day' in phases.SIMULATION_PHASES['reopen']:
+    start_day = phases.SIMULATION_PHASES['reopen']['start day']
     plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
                 [sim_state[s.NEW_CASES_SERIES][start_day],
                  sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],

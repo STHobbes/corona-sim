@@ -1,6 +1,7 @@
 """
 The code that performs the actual simulation.
 """
+import random
 
 # simulation defaults
 DEFAULT_POPULATION = 50000
@@ -15,10 +16,14 @@ PEOPLE = 'people'
 HOSPITALIZED_PEOPLE = 'hospitalized_people'
 HEALTH_STATES = 'health_states'
 PHASES = 'phases'
-DAilY_PHASE_EVALUATION = 'daily_phase_evaluation'
+DAILY_PHASE_EVALUATION = 'daily_phase_evaluation'
+SET_DEFAULT_HEALTH = 'set_initial_health'
+SET_INFECTED = 'set_infected'
 DAILY_HEALTH_EVALUATION = 'daily_health_evaluation'
 DAILY_EVALUATE_CONTACTS = 'daily_evaluate_contacts'
 UPDATE_TESTING_RATES = 'update_testing_rates'
+EVENTS = 'events'
+DAILY_EVENT_EVALUATION = 'daily_event_evaluation'
 
 # Properties for the simulation of the current day
 CURRENT_PHASE = 'current_phase'
@@ -66,9 +71,11 @@ NEW_RECOVERIES_SERIES = 'new_recoveries_series'
 NEW_DEATHS_SERIES = 'new_deaths_series'
 
 
-def create_initial_state(health_states, daily_health_evaluation,
+def create_initial_state(health_states, set_default_health_state,
+                         set_initial_infected_state, daily_health_evaluation,
                          evaluate_contacts, update_testing_rates,
                          phases, daily_phase_evaluation,
+                         events=None, daily_event_evaluation=None,
                          simulation_days=DEFAULT_SIMULATION_DAYS,
                          population=DEFAULT_POPULATION,
                          initial_infection=DEFAULT_INITIAL_INFECTION):
@@ -79,11 +86,15 @@ def create_initial_state(health_states, daily_health_evaluation,
         PEOPLE: [],
         HOSPITALIZED_PEOPLE: [],
         HEALTH_STATES: health_states,
+        SET_DEFAULT_HEALTH: set_default_health_state,
+        SET_INFECTED: set_initial_infected_state,
         DAILY_HEALTH_EVALUATION: daily_health_evaluation,
         DAILY_EVALUATE_CONTACTS: evaluate_contacts,
         UPDATE_TESTING_RATES: update_testing_rates,
         PHASES: phases,
-        DAilY_PHASE_EVALUATION: daily_phase_evaluation,
+        DAILY_PHASE_EVALUATION: daily_phase_evaluation,
+        EVENTS: events,
+        DAILY_EVENT_EVALUATION: daily_event_evaluation,
         MAX_NEW_DAILY_CASES: 0,
         MAX_NEW_DAILY_CONFIRMED_CASES: 0,
         MAX_ACTIVE_CASES: 0,
@@ -111,10 +122,34 @@ def create_initial_state(health_states, daily_health_evaluation,
 
 
 def run_simulation(ss):
+    # OK, let's setup and run the simulation for SIMULATION_DAYS days. The first thing
+    # we need is the population. For this initial model we will represent each person
+    # with a dictionary and we will keep their 'state' as one of the health states, and
+    # 'days' as the number of days they have been at that state. Create a healthy
+    # population:
+    for person_id in range(ss[POPULATION]):
+        person = {'id': person_id}
+        ss[SET_DEFAULT_HEALTH](person, True)
+        ss[PEOPLE].append(person)
+
+    # OK, now I've got a healthy population - let's infect the 'INITIAL_INFECTION',
+    # randomly - these may be people who came from an infected area to their second house,
+    # or went to a place that was infected to shop or work, and then came back into the
+    # population we are modeling.
+    for _ in range(ss[INITIAL_INFECTION]):
+        ss[SET_INFECTED](
+            ss[PEOPLE][random.randint(0, ss[POPULATION] - 1)])
+
+    # OK, let's simulate. For each day every person will have DAILY_CONTACTS random
+    # contacts. If it is a contact between a person who can get infected and an
+    # infected person, then we will guess whether the person was infected based on
+    # the TRANSMISSION_POSSIBILITY
+    ss[DAILY_POPULATION] = ss[POPULATION]
+
     for day in range(ss[SIMULATION_DAYS]):
         # Does the simulation state change today based on the
         # numbers at the beginning of the day??
-        if ss[DAilY_PHASE_EVALUATION](ss, day):
+        if ss[DAILY_PHASE_EVALUATION](ss, day):
             ss[UPDATE_TESTING_RATES](ss[CURRENT_TESTING_PROBABILITY])
 
         # initialize statistics for today
@@ -136,6 +171,9 @@ def run_simulation(ss):
             # can this person infect, or be infected - if so, daily contacts
             # must be traced to see if there is an infection event
             ss[DAILY_EVALUATE_CONTACTS](ss, person, ss[PEOPLE])
+
+        if ss[DAILY_EVENT_EVALUATION] is not None:
+            ss[DAILY_EVENT_EVALUATION](ss, day)
 
         # append the today's statistics to the lists
         # new_confirmed_cases = sim_state[s.CURRENT_TESTING_PROBABILITY] * sim_state[s.DAILY_CASES]
