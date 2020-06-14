@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+import simulate as s
 
 
 def read_data_file(file_name):
@@ -49,7 +50,9 @@ def plot_curves(curves, title,
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.xticks(np.arange(0, 211, 14))
+    for label, data in curves.items():
+        tic_spacing = 14 if len(data) <= 211 else 28
+        plt.xticks(np.arange(0, len(data), tic_spacing))
     plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
     for label, data in curves.items():
         plt.plot(data, label=label)
@@ -58,8 +61,8 @@ def plot_curves(curves, title,
     plt.pause(0.1)
 
 
-def plot_run_set(run_set, series, title, events=None,
-                 xlabel='days', ylabel='count', average=True):
+def plot_run_set_series(run_set, series, title_template, events=None,
+                        xlabel='days', average=True):
     """
     Plot some series from all of the runs in the set.
 
@@ -76,7 +79,7 @@ def plot_run_set(run_set, series, title, events=None,
 
     # compute the average - this gets returned even if it doesn't
     # get plotted.
-    ave = [0 for _ in range(run_set['seeded']['simulation_days'] + 1)]
+    ave = [0 for _ in range(run_set['seeded'][s.SIMULATION_DAYS] + 1)]
     for data in run_set.values():
         series_data = data[series]
         for i in range(len(series_data)):
@@ -84,11 +87,19 @@ def plot_run_set(run_set, series, title, events=None,
     for i in range(len(ave)):
         ave[i] /= len(run_set)
 
+    # figure out the axis and grid. If a simulation is extended or
+    # shortened, we need to adjust the grid accordingly - specifically
+    # we are talking about the X or duration grid. Grid lines in weeks
+    # are pretty intuitive, if they get too dense, that's a problem:
+    #     tic_spacing - generally, 2 weeks (14 days) is good - but -
+    #     if the simulation length gets too long we need to adjust that
+    #     to a wider/narrower interval so the presentation makes sense
     plt.clf()
-    plt.title(title)
+    plt.title(title_template.format(series.title()))
     plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.xticks(np.arange(0, 211, 14))
+    plt.ylabel(series)
+    tic_spacing = 14 if run_set['seeded'][s.SIMULATION_DAYS] <= 211 else 28
+    plt.xticks(np.arange(0, run_set['seeded'][s.SIMULATION_DAYS], tic_spacing))
     plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
     if events is not None:
         for label, data in events.items():

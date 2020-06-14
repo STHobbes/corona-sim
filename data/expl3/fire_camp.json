@@ -1,0 +1,15 @@
+{
+    "description": "Fire Camp",
+    "start day": 40,
+    "end day": 50,
+    "duration": 12.0,
+    "participants": 1500,
+    "visiting participants": 1000,
+    "infected visiting": 0.03,
+    "site": "outside",
+    "seating": "fixed",
+    "masked": false,
+    "distanced": false,
+    "full duration contacts": 5,
+    "casual contacts": 200
+}

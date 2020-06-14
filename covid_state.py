@@ -69,7 +69,7 @@ HEALTH_STATES = {
         'infectious': True,
         'hospitalize': True,
         'icu': False,
-        'activity level': 0.0,
+        'activity level': 0.05,
         'next state': [(1.0, 'immune')]
     },
     'critical': {
@@ -80,7 +80,7 @@ HEALTH_STATES = {
         'infectious': True,
         'hospitalize': True,
         'icu': True,
-        'activity level': 0.0,
+        'activity level': 0.05,
         'next state': [(0.8, 'immune'),
                        (1.0, 'dead')]
     },
@@ -91,7 +91,7 @@ HEALTH_STATES = {
         'infectious': False,
         'hospitalize': False,
         'icu': False,
-        'next state': 'well',
+        'next state': [(1.0, 'well')],
         'death rate': 0.0
     },
     'dead': {
@@ -105,8 +105,55 @@ DEFAULT_HEALTH_STATE = HEALTH_STATES['well']
 
 
 def get_mean_infectious_days():
-    return (HEALTH_STATES['presymptomatic']['days at state'] + HEALTH_STATES['mild']['days at state']) * \
-           HEALTH_STATES['presymptomatic']['next state'][0][0]
+    """
+
+
+    :return:
+    """
+    # First question - why do we want this? Because the infectious days is part of the Ro
+    # calculation: Ro = contacts x transmission probability x infectious days
+    #
+    # OK, this is really difficult because it is not the case that everybody who is contagious is
+    # walking around infecting people. But that is not the case, let us examine this a bit. In a
+    # disease like COVID-19 we have a number of states that are infectious, and we can assign an activity
+    # level that corresponds to the effective number of days they are circulating, for example:
+    # - presymptomatic - don't know they have it, don't change behaviour, activity level 1.0
+    # - asymptomatic - don't know they have it, don't change behaviour, activity level 1.0
+    # - mild - guess that the average activity level is 0.5 (they don't qualify for testing unless
+    #     there is known contact, if symptoms are mild it is like a cold or similar illness - which
+    #     really doesn't slow us down that much).
+    # - severe & critical - require hospitalization, we might guess there is a little time they had
+    #     some activity, and then it became apparent there was a problem, they stayed in a bit,
+    #     and then when to the hospital where they were effectively quarantined - for the sake
+    #     of not over-complicating the model, let's assume anymore who is severe or critical is
+    #     instantly hospitalized
+    #
+    # So, the average number of days a contagious person is infecting other people is a summation of:
+    #   the probability of reaching that state x days at state x activity level
+    mean_infectious_days = 0.0
+    next_state_list = DEFAULT_HEALTH_STATE['next state']
+    last_state = None
+    for next_state in next_state_list:
+        probability = next_state[0] - (0.0 if last_state is None else last_state[0])
+        mean_infectious_days += probability * _get_mean_day_for_next_states(HEALTH_STATES[next_state[1]])
+        last_state = next_state
+    return mean_infectious_days
+
+
+def _get_mean_day_for_next_states(this_state):
+    if this_state['days at state'] == -1:
+        # this is a terminal state in the state tree
+        return 0.0
+    mean_infectious_days = (this_state['days at state'] * this_state['activity level']) \
+        if this_state['infectious'] else 0
+    # break this down - the next state has a probability - so
+    next_state_list = this_state['next state']
+    last_state = None
+    for next_state in next_state_list:
+        probability = next_state[0] - (0.0 if last_state is None else last_state[0])
+        mean_infectious_days += probability * _get_mean_day_for_next_states(HEALTH_STATES[next_state[1]])
+        last_state = next_state
+    return mean_infectious_days
 
 
 def set_default_health_state(person, local):

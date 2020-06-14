@@ -1,0 +1,14 @@
+{
+    "description": "Hood River Middle School Graduation",
+    "day": 70,
+    "duration": 3.0,
+    "participants": 3000,
+    "visiting participants": 1000,
+    "infected visiting": 0.02,
+    "site": "inside",
+    "seating": "fixed",
+    "masked": false,
+    "distanced": false,
+    "full duration contacts": 14,
+    "casual contacts": 40
+}

@@ -11,8 +11,8 @@ import json
 import simulate as s
 
 SIMULATION_PHASES = {
-    'normal': {'daily contacts': 50,
-               'transmission probability': 0.015,
+    'normal': {'daily contacts': 24,
+               'transmission probability': 0.031,
                'testing probability': 0.20
                }
 }
@@ -26,9 +26,12 @@ people behave normally, and the disease runs its course.
 
 def read_from_file(file_name):
     """
+    Read the phases data from a file. The default if no phase data is read is
+    50 daily contacts with a transmission probability of 0.015, and a
+    testing probability of 0.20
 
-    :param file_name:
-    :return:
+    :param file_name: (str, required) The name of the JSON phases description file.
+    :return: None
     """
     with open(file_name, "r") as data_file:
         global SIMULATION_PHASES
@@ -40,20 +43,24 @@ def read_from_file(file_name):
 
 def set_initial_phase(sim):
     """
+    Set the initial phase for the simulation.
 
-    :param sim:
-    :return:
+    :param sim: (dict, required) The simulation state.
+    :return: None
     """
-    set_simulation_phase(sim, INITIAL_PHASE, 0)
+    _set_simulation_phase(sim, INITIAL_PHASE, 0)
+    sim[s.NORMAL_DAILY_CONTACTS] = sim[s.CURRENT_DAILY_CONTACTS]
+    sim[s.NORMAL_TRANSMISSION_PROBABILITY] = sim[s.CURRENT_TRANSMISSION_PROBABILITY]
 
 
-def set_simulation_phase(sim, phase_key, start_day):
+def _set_simulation_phase(sim, phase_key, start_day):
     """
+    Set a simulation phase (this is a local method).
 
-    :param sim:
-    :param phase_key:
-    :param start_day:
-    :return:
+    :param sim: (dict, required) The simulation state.
+    :param phase_key: (str, required) The name of the phase to be started
+    :param start_day: (int, required) The day that this phase is starting.
+    :return: None
     """
     phase = sim[s.CURRENT_PHASE] = SIMULATION_PHASES[phase_key]
     sim[s.HAS_NEXT_PHASE] = 'next phase' in phase and 'condition' in phase
@@ -68,14 +75,16 @@ def set_simulation_phase(sim, phase_key, start_day):
 
 def daily_phase_evaluation(sim, day):
     """
+    Examine the data for this day
 
-    :param sim:
-    :param day:
-    :return:
+    :param sim: (dict, required) The simulation state.
+    :param day: (int, required) The day of the simulation for which the phase
+    is being evaluated.
+    :return: (bool) True if the state has advanced, False otherwise
     """
+    advance = False
     if sim[s.HAS_NEXT_PHASE]:
         condition = sim[s.CURRENT_PHASE]['condition']
-        advance = False
         if condition['type'] == 'cumulative cases exceeds':
             advance = sim[s.CUMULATIVE_CASES_SERIES][day] >= condition['count']
         elif condition['type'] == 'cumulative confirmed cases exceeds':
@@ -84,8 +93,12 @@ def daily_phase_evaluation(sim, day):
             advance = day - sim[s.MAX_ACTIVE_CASES] > condition['days']
         elif condition['type'] == 'days after confirmed max active':
             advance = day - sim[s.MAX_ACTIVE_CONFIRMED_CASES] > condition['days']
+        elif condition['type'] == 'days in phase':
+            advance = day - sim[s.CURRENT_PHASE]['start day'] > condition['days']
         # Add new conditions here
+
         if advance:
             print(f' advance to {sim[s.CURRENT_PHASE]["next phase"]} on day {day}')
-            set_simulation_phase(sim, sim[s.CURRENT_PHASE]['next phase'], day)
-            return True
+            _set_simulation_phase(sim, sim[s.CURRENT_PHASE]['next phase'], day)
+
+    return advance

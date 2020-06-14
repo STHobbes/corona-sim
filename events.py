@@ -1,36 +1,8 @@
-import simulate as s
+import json
 import random
+import simulate as s
 
-EVENTS = [{
-    'description': 'Hood River Middle School Graduation',
-    'day': 70,
-    'duration': 3.0,
-    'participants': 3000,
-    'visiting participants': 1000,
-    'infected visiting': 0.02,
-    'site': 'inside',
-    'seating': 'fixed',
-    'masked': False,
-    'full duration contacts': 14,
-    # 2 people either side, 4 people 1 row ahead and behind, 2 people 2 rows ahead or behind
-    'casual contacts': 40
-    # most everyone is local, probably run into a number that you know
-}, {
-    'description': 'Fire Camp',
-    'start day': 40,
-    'end day': 50,
-    'duration': 12.0,
-    'participants': 1500,
-    'visiting participants': 1000,
-    'infected visiting': 0.03,
-    'site': 'outside',
-    'seating': 'fixed',
-    'masked': False,
-    'full duration contacts': 5,
-    # 3 person file groups
-    'casual contacts': 200
-    # casual working
-}]
+EVENTS = []
 
 
 # day - the day of the simulation for the event
@@ -49,6 +21,15 @@ EVENTS = [{
 # full duration contacts - # of people within 6 ft for the duration of the event
 # casual contacts - # of people casually contacted (brief passing conversation)
 
+def read_from_file(*file_names):
+    global EVENTS
+    events = []
+    for file_name in file_names:
+        with open(file_name, "r") as data_file:
+            events.append(json.load(data_file))
+    EVENTS = events
+
+
 def evaluate_events(sim_state, day):
     for event in EVENTS:
         if event.get('day', -1) == day or \
@@ -56,16 +37,20 @@ def evaluate_events(sim_state, day):
             # OK, this event happens or starts today
             print(f'{event["description"]} on day {day}')
             # What is the probability of infection for the event?
-            # full duration contacts - use 3 x phase transmission possibility CURRENT_TRANSMISSION_PROBABILITY
+            # full duration contacts - use 3 x normal transmission possibility CURRENT_TRANSMISSION_PROBABILITY
             #    * number of hours * .5 for masked * (1.5 if inside, 1.0 otherwise)
             # casual contacts are at the CURRENT_TRANSMISSION_PROBABILITY
-            full_duration_probability = 5.0 * sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] * event['duration']
+            full_duration_probability = \
+                3.0 * (sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] if
+                       event['distanced'] else sim_state[s.NORMAL_TRANSMISSION_PROBABILITY]) * \
+                event['duration']
             if event['masked']:
                 full_duration_probability *= 0.5
             if event['site'] == 'inside':
                 full_duration_probability *= 1.5
 
-            casual_probability = 5.0 * sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]
+            casual_probability = 3.0 * (sim_state[s.CURRENT_TRANSMISSION_PROBABILITY] if
+                                        event['distanced'] else sim_state[s.NORMAL_TRANSMISSION_PROBABILITY])
             if event['site'] == 'inside':
                 casual_probability *= 1.5
 
@@ -92,7 +77,8 @@ def evaluate_events(sim_state, day):
                         if state['name'] == 'dead' or state['hospitalize']:
                             # this person is out of the pool, replace them
                             event_people.remove(person)
-                            event_people.append(sim_state[s.PEOPLE][random.randint(0, sim_state[s.DAILY_POPULATION] - 1)])
+                            event_people.append(
+                                sim_state[s.PEOPLE][random.randint(0, sim_state[s.DAILY_POPULATION] - 1)])
                     else:
                         sim_state[s.DAILY_HEALTH_EVALUATION](sim_state, person)
 
@@ -122,4 +108,3 @@ def evaluate_events(sim_state, day):
                 del event['people']
 
     return
-

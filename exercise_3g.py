@@ -11,10 +11,14 @@ import events
 
 
 def run_simulation(args):
-    # Setup the phases - there is a default no-phases implementation which can be overridden
-    # by loading phases from a file
+    # Setup the phases - there is a default no-phases implementation which
+    # can be overridden by loading phases from a file
     if args.phases is not None:
         phases.read_from_file(args.phases)
+    # Setup the events - there is a default no-events implementation and
+    # events can be loaded by event files
+    if args.events is not None:
+        events.read_from_file(*[file_name.strip() for file_name in args.events.split(',')])
     # Create the simulation state and initialize it to the initial state
     sim_state = s.create_initial_state(
         state.HEALTH_STATES, state.set_default_health_state,
@@ -22,7 +26,9 @@ def run_simulation(args):
         state.evaluate_contacts, state.set_testing_for_phase,
         phases.SIMULATION_PHASES, phases.daily_phase_evaluation,
         events=events.EVENTS, daily_event_evaluation=events.evaluate_events,
-        population=args.population)
+        population=args.population, simulation_days=args.sim_days,
+        initial_infection=args.infection
+    )
     sim_state[s.CURRENT_CONTAGIOUS_DAYS] = state.get_mean_infectious_days()
     phases.set_initial_phase(sim_state)
     state.set_testing_for_phase(sim_state[s.CURRENT_TESTING_PROBABILITY])
@@ -95,160 +101,72 @@ def run_simulation(args):
     return sim_state, phase_desc
 
 
-def write_data(sim_state, file_name):
-    # save the data from this simulation to a file
-    phases_data = {}
-    for key, value in phases.SIMULATION_PHASES.items():
-        if 'start day' in value:
-            phases_data[key] = {
-                'start_day': value['start day'],
-                'daily_contacts': value['daily contacts'],
-                'transmission_probability': value['transmission probability'],
-                'Ro': value["Ro"]
-            }
-
-    data = {'simulation_days': sim_state[s.SIMULATION_DAYS],
-            'population': sim_state[s.POPULATION],
-            'initial_infection': sim_state[s.INITIAL_INFECTION],
-            'phases': phases_data,
-            'max_new_daily_cases_day': sim_state[s.MAX_NEW_DAILY_CASES],
-            'max_active_cases_day': sim_state[s.MAX_ACTIVE_CASES],
-            'max_active_hospitalizations_day': sim_state[s.MAX_ACTIVE_HOSPITALIZATIONS],
-            'max_active_ICU_day': sim_state[s.MAX_ACTIVE_ICU],
-            'cumulative_cases': sim_state[s.CUMULATIVE_CASES_SERIES][-1],
-            'cumulative_recoveries': sim_state[s.CUMULATIVE_RECOVERIES_SERIES][-1],
-            'cumulative_deaths': sim_state[s.CUMULATIVE_DEATHS_SERIES][-1],
-            'cumulative_cases_series': sim_state[s.CUMULATIVE_CASES_SERIES],
-            'active_cases_series': sim_state[s.ACTIVE_CASES_SERIES],
-            'active_confirmed_cases_series': sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES],
-            'active_hospitalized_cases_series': sim_state[s.ACTIVE_HOSPITALIZED_CASES_SERIES],
-            'active_ICU_cases_series': sim_state[s.ACTIVE_ICU_CASES_SERIES],
-            'cumulative_recoveries_series': sim_state[s.CUMULATIVE_RECOVERIES_SERIES],
-            'cumulative_deaths_series': sim_state[s.CUMULATIVE_DEATHS_SERIES],
-            'daily_new_cases_series': sim_state[s.NEW_CASES_SERIES],
-            'daily_new_active_cases_series': sim_state[s.NEW_ACTIVE_CASES_SERIES],
-            'daily_new_recoveries_series': sim_state[s.NEW_RECOVERIES_SERIES],
-            'daily_new_deaths_series': sim_state[s.NEW_DEATHS_SERIES]}
-    with open(file_name, "w") as fw:
-        json.dump(data, fw, indent=2)
-
-
 def plot_graphs(sim_state, phase_desc):
-    # plot the results
-    # These are the cumulative stats
-    plt.clf()
-    plt.title(
-        f'Total Cases Simulation, {sim_state[s.POPULATION]} population,\n '
-        f'{phase_desc}')
-    plt.xlabel('days')
-    plt.ylabel('cumulative number')
-    plt.xticks(np.arange(0, 211, 14))
-    plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-    for key, phase in phases.SIMULATION_PHASES.items():
-        start_day = phase.get('start day', 0)
-        if start_day > 1:
-            plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day, start_day, start_day],
-                        [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
-                         sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_HOSPITALIZED_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_ICU_CASES_SERIES][start_day],
-                         sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
-                         sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
-                        label=key)
-    plt.plot(sim_state[s.CUMULATIVE_CASES_SERIES], label='cumulative cases')
-    plt.plot(sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES], label='cumulative confirmed cases')
-    plt.plot(sim_state[s.ACTIVE_CASES_SERIES], label='active cases')
-    plt.plot(sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES], label='active confirmed cases')
-    plt.plot(sim_state[s.ACTIVE_HOSPITALIZED_CASES_SERIES], label='active hospitalization')
-    plt.plot(sim_state[s.ACTIVE_ICU_CASES_SERIES], label='active icu')
-    plt.plot(sim_state[s.CUMULATIVE_RECOVERIES_SERIES], label='recoveries')
-    plt.plot(sim_state[s.CUMULATIVE_DEATHS_SERIES], label='deaths')
-    plt.legend()
-    plt.show()
-    plt.pause(0.1)
+    s.graph_simulation(
+        sim_state, f'Total Cases Simulation, {sim_state[s.POPULATION]} population,\n {phase_desc}',
+        [s.CUMULATIVE_CASES_SERIES, s.CUMULATIVE_CONFIRMED_CASES_SERIES, s.ACTIVE_CASES_SERIES,
+         s.ACTIVE_CONFIRMED_CASES_SERIES, s.ACTIVE_HOSPITALIZED_CASES_SERIES, s.ACTIVE_ICU_CASES_SERIES,
+         s.CUMULATIVE_RECOVERIES_SERIES, s.CUMULATIVE_DEATHS_SERIES])
 
-    # plot the results
-    # These are the cumulative stats
-    plt.clf()
-    plt.title(
-        f'Active Cases Simulation, {sim_state[s.POPULATION]} population,\n '
-        f'{phase_desc}')
-    plt.xlabel('days')
-    plt.ylabel('active count')
-    plt.xticks(np.arange(0, 211, 14))
-    plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-    for key, phase in phases.SIMULATION_PHASES.items():
-        start_day = phase.get('start day', 0)
-        if start_day > 1:
-            plt.scatter([start_day, start_day, start_day, start_day],
-                        [sim_state[s.ACTIVE_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_HOSPITALIZED_CASES_SERIES][start_day],
-                         sim_state[s.ACTIVE_ICU_CASES_SERIES][start_day]],
-                        label=key)
-    plt.plot(sim_state[s.ACTIVE_CASES_SERIES], label='active cases')
-    plt.plot(sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES], label='active confirmed cases')
-    plt.plot(sim_state[s.ACTIVE_HOSPITALIZED_CASES_SERIES], label='active hospitalization')
-    plt.plot(sim_state[s.ACTIVE_ICU_CASES_SERIES], label='active icu')
-    plt.legend()
-    plt.show()
-    plt.pause(0.1)
+    s.graph_simulation(
+        sim_state, f'Active Cases Simulation, {sim_state[s.POPULATION]} population,\n {phase_desc}',
+        [s.ACTIVE_CASES_SERIES, s.ACTIVE_CONFIRMED_CASES_SERIES,
+         s.ACTIVE_HOSPITALIZED_CASES_SERIES, s.ACTIVE_ICU_CASES_SERIES])
 
-    # These are the daily stats
-    plt.clf()
-    plt.title(
-        f'Daily Cases Simulation, {sim_state[s.POPULATION]} population,\n '
-        f'{phase_desc}')
-    plt.xlabel('days')
-    plt.ylabel('daily number')
-    plt.xticks(np.arange(0, 211, 14))
-    plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
-    for key, phase in phases.SIMULATION_PHASES.items():
-        start_day = phase.get('start day', 0)
-        if start_day > 1:
-            plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
-                        [sim_state[s.NEW_CASES_SERIES][start_day],
-                         sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
-                         sim_state[s.NEW_ACTIVE_CASES_SERIES][start_day],
-                         sim_state[s.NEW_CONFIRMED_ACTIVE_CASES_SERIES][start_day],
-                         sim_state[s.NEW_RECOVERIES_SERIES][start_day],
-                         sim_state[s.NEW_DEATHS_SERIES][start_day]],
-                        label=key)
-    plt.plot(sim_state[s.NEW_CASES_SERIES], label='daily new cases')
-    plt.plot(sim_state[s.NEW_CONFIRMED_CASES_SERIES], label='daily new confirmed cases')
-    plt.plot(sim_state[s.NEW_ACTIVE_CASES_SERIES], label='daily active cases')
-    plt.plot(sim_state[s.NEW_CONFIRMED_ACTIVE_CASES_SERIES], label='daily active confirmed cases')
-    plt.plot(sim_state[s.NEW_RECOVERIES_SERIES], label='daily recoveries')
-    plt.plot(sim_state[s.NEW_DEATHS_SERIES], label='daily deaths')
-    plt.legend()
-    plt.show()
-    plt.pause(0.1)
+    s.graph_simulation(
+        sim_state, f'Daily Cases Simulation, {sim_state[s.POPULATION]} population,\n {phase_desc}',
+        [s.NEW_CASES_SERIES, s.NEW_CONFIRMED_CASES_SERIES, s.NEW_ACTIVE_CASES_SERIES,
+         s.NEW_CONFIRMED_ACTIVE_CASES_SERIES, s.NEW_RECOVERIES_SERIES, s.NEW_DEATHS_SERIES])
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Lets run some simulations -
+# - Start by parsing the arguments that configure this simulation run
+# ----------------------------------------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(
     description='Run s simulation of in infectious disease spreading through a population.')
-parser.add_argument('-ph', '--phases', dest='phases', type=str, default=None,
-                    help='The json file containing the simulation phases description.')
-parser.add_argument('-st', '--states', dest='states', type=str, default='./data/default_states.json',
-                    help='The json file containing the health states data for the disease.')
-parser.add_argument('-o', '--output', dest='base', type=str, default=None,
-                    help='The base name of the .json file(s) to which the data from the simulation will be written.')
-parser.add_argument("-p", "--population", dest='population', type=int, default=50000,
-                    help='The population for the simulation.')
-parser.add_argument("-g", "--graphs", dest='graphs', action="store_true",
-                    help='Display the graphs for the simulation.')
-parser.add_argument("-r", "--runs", dest='runs', type=int, default=0,
-                    help='The number of runs for the set, 1 seeded run is always included')
+parser.add_argument(
+    '-ph', '--phases', dest='phases', type=str, default=None,
+    help='The JSON file containing the simulation phases description.')
+parser.add_argument(
+    '-st', '--states', dest='states', type=str, default='./data/default_states.json',
+    help='The JSON file containing the health states data for the disease.')
+parser.add_argument(
+    '-e', '--events', dest='events', type=str, default=None,
+    help='The JSON files containing the events descriptions, comma separated.')
+parser.add_argument(
+    '-o', '--output', dest='base', type=str, default=None,
+    help='The base name of the .json file(s) to which the data from the simulation will be written.')
+parser.add_argument(
+    '-p', '--population', dest='population', type=int, default=s.DEFAULT_POPULATION,
+    help='The population for the simulation.')
+parser.add_argument(
+    '-d', '--days', dest='sim_days', type=int, default=s.DEFAULT_SIMULATION_DAYS,
+    help='The length of the simulation in days.')
+parser.add_argument(
+    '-i', '--infection', dest='infection', type=int, default=s.DEFAULT_INITIAL_INFECTION,
+    help='The default infection (not tested).')
+parser.add_argument(
+    '-g', '--graphs', dest='graphs', action='store_true',
+    help='Display the graphs for the simulation.')
+parser.add_argument(
+    '-r', '--runs', dest='runs', type=int, default=0,
+    help='The number of runs for the set, 1 seeded run is always included')
 args = parser.parse_args()
 
-print(f'phases file:          {args.phases}')
-print(f'health states file:   {args.states}')
-print(f'output file(s) base:  {args.base}')
-print(f'population:           {args.population}')
-print(f'display graphs:       {args.graphs}')
-print(f'random runs:          {args.runs}')
+print('---------------------------------------------------------')
+print('---    INFECTIOUS DISEASE SIMULATION CONFIGURATION    ---')
+print('---------------------------------------------------------')
+print(f'population:               {args.population}')
+print(f'simulation length (days): {args.sim_days}')
+print(f'initial infection:        {args.infection}')
+print(f'phases file:              {args.phases}')
+print(f'health states file:       {args.states}')
+print(f'output file(s) base:      {args.base}')
+print(f'events:                   {args.events}')
+print(f'display graphs:           {args.graphs}')
+print(f'random runs:              {args.runs}')
+print('---------------------------------------------------------')
 
 # The seeded run
 random.seed(42)
@@ -257,7 +175,7 @@ print('---   Seeded Run                                                         
 print('-------------------------------------------------------------------------------')
 sim, sub_title = run_simulation(args)
 if args.base is not None:
-    write_data(sim, f'{args.base}.json')
+    s.write_data(sim, f'{args.base}.json')
 if args.graphs:
     plot_graphs(sim, sub_title)
 
@@ -270,4 +188,4 @@ if args.runs > 0 and args.base is not None:
         print('-------------------------------------------------------------------------------')
         random.seed(int(time.time()))
         sim, sub_title = run_simulation(args)
-        write_data(sim, f'{args.base}_{run_id}.json')
+        s.write_data(sim, f'{args.base}_{run_id}.json')

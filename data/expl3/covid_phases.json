@@ -3,8 +3,8 @@
   "phases": {
     "normal": {
       "name": "normal",
-      "daily contacts": 50,
-      "transmission probability": 0.012,
+      "daily contacts": 24,
+      "transmission probability": 0.025,
       "testing probability": 0.20,
       "next phase": "lock down",
       "condition": {
@@ -14,20 +14,31 @@
     },
     "lock down": {
       "name": "lock down",
-      "daily contacts": 20,
-      "transmission probability": 0.008,
+      "daily contacts": 10,
+      "transmission probability": 0.018,
       "testing probability": 0.30,
-      "next phase": "reopen",
+      "next phase": "ease",
       "condition": {
         "type": "days after confirmed max active",
         "days": 21
       }
     },
+    "ease": {
+      "name": "ease",
+      "daily contacts": 12,
+      "transmission probability": 0.0185,
+      "testing probability": 0.40,
+      "next phase": "reopen",
+      "condition": {
+        "type": "days in phase",
+        "days": 21
+      }
+    },
     "reopen": {
       "name": "reopen",
-      "daily contacts": 25,
-      "transmission probability": 0.010,
-      "testing probability": 0.40
+      "daily contacts": 14,
+      "transmission probability": 0.019,
+      "testing probability": 0.50
     }
   }
 }

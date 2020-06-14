@@ -1,3 +1,4 @@
+import argparse
 import json
 import random
 import time
@@ -39,6 +40,7 @@ HEALTH_STATES = {
 
 def get_mean_infectious_days():
     return HEALTH_STATES['contagious']['days at state']
+
 
 def set_default_health_state(person):
     person['state'] = 'well'
@@ -111,14 +113,45 @@ def evaluate_contacts(sim_state, person, population):
                     advance_health_state(sim_state, contact, HEALTH_STATES[contact['state']])
 
 
-phases.read_from_file('./data/ex2_phases.json')
+# ----------------------------------------------------------------------------------------------------------------------
+# OK, this is the real start of the simulation
+# ----------------------------------------------------------------------------------------------------------------------
+parser = argparse.ArgumentParser(
+    description='Run s simulation of in infectious disease spreading through a population.')
+parser.add_argument(
+    '-ph', '--phases', dest='phases', type=str, default=None,
+    help='The JSON file containing the simulation phases description.')
+parser.add_argument(
+    '-p', '--population', dest='population', type=int, default=s.DEFAULT_POPULATION,
+    help='The population for the simulation.')
+parser.add_argument(
+    '-d', '--days', dest='sim_days', type=int, default=s.DEFAULT_SIMULATION_DAYS,
+    help='The length of the simulation in days.')
+parser.add_argument(
+    '-i', '--infection', dest='infection', type=int, default=s.DEFAULT_INITIAL_INFECTION,
+    help='The default infection (not tested).')
+args = parser.parse_args()
+
+print('---------------------------------------------------------')
+print('---    INFECTIOUS DISEASE SIMULATION CONFIGURATION    ---')
+print('---------------------------------------------------------')
+print(f'population:               {args.population}')
+print(f'simulation length (days): {args.sim_days}')
+print(f'initial infection:        {args.infection}')
+print(f'phases file:              {args.phases}')
+print('---------------------------------------------------------')
+
+if args.phases is not None:
+    phases.read_from_file(args.phases)
 
 sim_state = s.create_initial_state(
     HEALTH_STATES, set_default_health_state,
     set_initial_infected_state, evaluate_health_for_day,
     evaluate_contacts, None,
     phases.SIMULATION_PHASES, phases.daily_phase_evaluation,
-    population=5000)
+    population=args.population, simulation_days=args.sim_days,
+    initial_infection=args.infection
+)
 sim_state[s.CURRENT_CONTAGIOUS_DAYS] = get_mean_infectious_days()
 phases.set_initial_phase(sim_state)
 
@@ -204,6 +237,7 @@ for day in range(sim_state[s.SIMULATION_DAYS]):
     sim_state[s.NEW_DEATHS_SERIES].append(sim_state[s.DAILY_DEATHS])
 
 # print the results of the simulation
+phase_desc = ''
 print(f'Simulation Summary:')
 print(f'  Setup:')
 print(f'    Simulation Days:           {sim_state[s.SIMULATION_DAYS]:16,}')
@@ -218,6 +252,9 @@ for key, value in phases.SIMULATION_PHASES.items():
         print(f'        contacts per day:        {value["daily contacts"]:14,}')
         print(f'        transmission probability:{value["transmission probability"]:14.4f}')
         print(f'        Ro:                      {value["Ro"]:14.4f}')
+        if phase_desc != '':
+            phase_desc += ', '
+        phase_desc += f'{key} Ro={value["Ro"]:.2f}'
 print(f'  Daily:')
 print(f'    Max Daily New Cases:')
 print(f'      On Day:                  {sim_state[s.MAX_NEW_DAILY_CASES]:16,}')
@@ -275,8 +312,8 @@ with open("./data/expl3/test_x.json", "w") as fw:
 # These are the cumulative stats
 plt.clf()
 plt.title(
-    f'Total Cases Simulation\n {sim_state[s.POPULATION]} population, '
-    f'{sim_state[s.CURRENT_DAILY_CONTACTS]} daily contacts @ {sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]}')
+    f'Total Cases Simulation, {sim_state[s.POPULATION]} population,\n '
+    f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('cumulative number')
 plt.xticks(np.arange(0, 211, 14))
@@ -285,13 +322,13 @@ for key, phase in phases.SIMULATION_PHASES.items():
     start_day = phase.get('start day', 0)
     if start_day > 1:
         plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
-                [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
-                 sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
-                 sim_state[s.ACTIVE_CASES_SERIES][start_day],
-                 sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES][start_day],
-                 sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
-                 sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
-                label=key)
+                    [sim_state[s.CUMULATIVE_CASES_SERIES][start_day],
+                     sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES][start_day],
+                     sim_state[s.ACTIVE_CASES_SERIES][start_day],
+                     sim_state[s.ACTIVE_CONFIRMED_CASES_SERIES][start_day],
+                     sim_state[s.CUMULATIVE_RECOVERIES_SERIES][start_day],
+                     sim_state[s.CUMULATIVE_DEATHS_SERIES][start_day]],
+                    label=key)
 
 plt.plot(sim_state[s.CUMULATIVE_CASES_SERIES], label='cumulative cases')
 plt.plot(sim_state[s.CUMULATIVE_CONFIRMED_CASES_SERIES], label='cumulative confirmed cases')
@@ -306,8 +343,8 @@ plt.pause(0.1)
 # These are the daily stats
 plt.clf()
 plt.title(
-    f'Daily Cases Simulation\n {sim_state[s.POPULATION]} population, '
-    f'{sim_state[s.CURRENT_DAILY_CONTACTS]} daily contacts @ {sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]}')
+    f'Daily Cases Simulation, {sim_state[s.POPULATION]} population,\n '
+    f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('daily number')
 plt.xticks(np.arange(0, 211, 14))
@@ -316,13 +353,13 @@ for key, phase in phases.SIMULATION_PHASES.items():
     start_day = phase.get('start day', 0)
     if start_day > 1:
         plt.scatter([start_day, start_day, start_day, start_day, start_day, start_day],
-                [sim_state[s.NEW_CASES_SERIES][start_day],
-                 sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
-                 sim_state[s.NEW_ACTIVE_CASES_SERIES][start_day],
-                 sim_state[s.NEW_CONFIRMED_ACTIVE_CASES_SERIES][start_day],
-                 sim_state[s.NEW_RECOVERIES_SERIES][start_day],
-                 sim_state[s.NEW_DEATHS_SERIES][start_day]],
-                label=key)
+                    [sim_state[s.NEW_CASES_SERIES][start_day],
+                     sim_state[s.NEW_CONFIRMED_CASES_SERIES][start_day],
+                     sim_state[s.NEW_ACTIVE_CASES_SERIES][start_day],
+                     sim_state[s.NEW_CONFIRMED_ACTIVE_CASES_SERIES][start_day],
+                     sim_state[s.NEW_RECOVERIES_SERIES][start_day],
+                     sim_state[s.NEW_DEATHS_SERIES][start_day]],
+                    label=key)
 plt.plot(sim_state[s.NEW_CASES_SERIES], label='daily new cases')
 plt.plot(sim_state[s.NEW_CONFIRMED_CASES_SERIES], label='daily new confirmed cases')
 plt.plot(sim_state[s.NEW_ACTIVE_CASES_SERIES], label='daily active cases')
