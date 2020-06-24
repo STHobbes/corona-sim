@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="exercise_3g - event test" type="PythonConfigurationType" factoryName="Python">
+    <module name="corona-sim" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/exercise_3g.py" />
+    <option name="PARAMETERS" value="-p 50000 -ph &quot;./data/expl3/covid_phases.json&quot; -st &quot;./data/expl3/covid_states.json&quot; -o &quot;./data/expl3/cov_50000_e70&quot; -e &quot;./data/expl3/fire_camp.json,./data/expl3/graduation.json&quot; -d 281 -g -r 10" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="MODULE_MODE" value="false" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+</component>
