@@ -4,19 +4,21 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-POPULATION = 50000
+POPULATION = 328000
 '''The size of the initial population.'''
 
 INITIAL_INFECTION = 20
 '''The initial infection is the number of initially infected individuals in the population.'''
 
-SIMULATION_DAYS = 211
+SIMULATION_DAYS = 281
 '''The number of days to run the simulation.'''
 
+GRAPH_HERD_IMMUNITY = True
+
 SIMULATION_PHASES = {
-    'normal': {'daily contacts': 50,
-               'transmission probability': 0.015,
-               'next phase': 'lock down',
+    'normal': {'daily contacts': 10,
+               'transmission probability': 0.0150,
+               # 'next phase': 'lock down',
                'condition': {'type': 'cumulative cases exceeds',
                              'count': 200}},
     'lock down': {'daily contacts': 20,
@@ -35,14 +37,14 @@ HEALTH_STATES = {'well': {'days at state': -1,
                           'can be infected': True,
                           'next state': 'infected',
                           'death rate': 0.0},
-                 'infected': {'days at state': 2,
+                 'infected': {'days at state': 4,
                               'can be infected': False,
                               'next state': 'contagious',
                               'death rate': 0.0},
-                 'contagious': {'days at state': 4,
+                 'contagious': {'days at state': 8,
                                 'can be infected': False,
                                 'next state': 'recovering',
-                                'death rate': 0.03},
+                                'death rate': 0.048},
                  'recovering': {'days at state': 10,
                                 'can be infected': False,
                                 'next state': 'immune',
@@ -80,7 +82,7 @@ transmission_probability = set_simulation_phase('normal', 0)
 # transmission_probability = simulation_state['transmission probability']
 # '''the likelihood a 'contagious' person will infect a 'well' person.'''
 
-random.seed(42)
+# random.seed(42)
 # Everything is setup, get the start time for the simulation
 start = time.time()
 # OK, let's setup and run the simulation for SIMULATION_DAYS days. The first thing
@@ -99,7 +101,9 @@ for person_id in range(POPULATION):
 # or went to a place that was infected to shop or work, and then came back into the
 # population we are modeling.
 for _ in range(INITIAL_INFECTION):
-    people[random.randint(0, POPULATION - 1)]['state'] = 'contagious'
+    person = people[random.randint(0, POPULATION - 1)]
+    person['state'] = 'contagious'
+    person['days'] = random.randint(0, HEALTH_STATES['contagious']['days at state'] - 1)
 
 # OK our population is ready to go. We need some tracking arrays so we can record
 # and graph what happens in our simulation. The important things for us are:
@@ -292,7 +296,8 @@ data = {'simulation_days': SIMULATION_DAYS,
         'daily_new_active_cases_series': daily_new_active_cases,
         'daily_new_recoveries_series': daily_new_recoveries,
         'daily_new_deaths_series': daily_new_deaths}
-with open("./data/expl2/test_x.json", "w") as fw:
+str_ro = f'{simulation_phase["Ro"]:.2f}'
+with open(f'./data/simple/Ro{str_ro.replace(".","_")}_{POPULATION}_2.json', "w") as fw:
     json.dump(data, fw, indent=2)
 
 # plot the results
@@ -303,8 +308,17 @@ plt.title(
     f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('cumulative number')
-plt.xticks(np.arange(0, 211, 14))
+tic_spacing = 14 if SIMULATION_DAYS <= 211 else 28
+plt.xticks(np.arange(0, SIMULATION_DAYS, tic_spacing))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+if GRAPH_HERD_IMMUNITY:
+    start_day = maximum_new_cases_day
+    plt.scatter([start_day, start_day, start_day, start_day],
+                [cumulative_cases[start_day],
+                 active_cases[start_day],
+                 cumulative_recoveries[start_day],
+                 cumulative_deaths[start_day]],
+                label='herd immunity')
 if 'start day' in SIMULATION_PHASES['lock down']:
     start_day = SIMULATION_PHASES['lock down']['start day']
     plt.scatter([start_day, start_day, start_day, start_day],
@@ -336,8 +350,17 @@ plt.title(
     f'{phase_desc}')
 plt.xlabel('days')
 plt.ylabel('daily number')
-plt.xticks(np.arange(0, 211, 14))
+tic_spacing = 14 if SIMULATION_DAYS <= 211 else 28
+plt.xticks(np.arange(0, SIMULATION_DAYS, tic_spacing))
 plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+if GRAPH_HERD_IMMUNITY:
+    start_day = maximum_new_cases_day
+    plt.scatter([start_day, start_day, start_day, start_day],
+            [daily_new_cases[start_day],
+             daily_new_active_cases[start_day],
+             daily_new_recoveries[start_day],
+             daily_new_deaths[start_day]],
+            label='herd immunity')
 if 'start day' in SIMULATION_PHASES['lock down']:
     start_day = SIMULATION_PHASES['lock down']['start day']
     plt.scatter([start_day, start_day, start_day, start_day],

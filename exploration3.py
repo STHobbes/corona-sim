@@ -4,16 +4,28 @@ import simulate as s
 data_dir = './data/expl3/'
 test_set = tools.read_run_set(data_dir, 'cov_50000')
 event_set = tools.read_run_set(data_dir, 'cov_50000_e70')
+set_300K = tools.read_run_set(data_dir, 'cov_300K')
+set_300K_70e = tools.read_run_set(data_dir, 'cov_300K_70e')
 
-title_template = '{} Simulation, pop: 50,000\nlock down at 200 confirmed'
+title_template = '{} Simulation, pop: 326,000\nlock down at 1000 confirmed'
 ave_active_cases = tools.plot_run_set_series(
-    test_set, s.ACTIVE_CASES_SERIES, title_template)
+    set_300K, s.ACTIVE_CASES_SERIES, title_template)
 
 ave_active_confirmed_cases = tools.plot_run_set_series(
-    test_set, s.ACTIVE_CONFIRMED_CASES_SERIES, title_template)
+    set_300K, s.ACTIVE_CONFIRMED_CASES_SERIES, title_template)
 
 ave_deaths = tools.plot_run_set_series(
-    test_set, s.CUMULATIVE_DEATHS_SERIES, title_template)
+    set_300K, s.CUMULATIVE_DEATHS_SERIES, title_template)
+
+title_template = '{} Simulation, pop: 326,000\nlock down at 1000 confirmed, 100 day ease'
+ave_active_cases = tools.plot_run_set_series(
+    set_300K_70e, s.ACTIVE_CASES_SERIES, title_template)
+
+ave_active_confirmed_cases = tools.plot_run_set_series(
+    set_300K_70e, s.ACTIVE_CONFIRMED_CASES_SERIES, title_template)
+
+ave_deaths = tools.plot_run_set_series(
+    set_300K_70e, s.CUMULATIVE_DEATHS_SERIES, title_template)
 
 title_template = '{} Simulation, pop: 50,000\nlock down at 200 confirmed, events at days 40-50, 70'
 ave_active_cases_event = tools.plot_run_set_series(

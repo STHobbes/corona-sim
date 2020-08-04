@@ -1,34 +1,35 @@
 import random
+import numpy as np
 import matplotlib.pyplot as plt
 
-POPULATION = 10000
+POPULATION = 32800
 '''The size of the initial population.'''
 
 INITIAL_INFECTION = 20
 '''The initial infection is the number of initially infected individuals in the population.'''
 
-SIMULATION_DAYS = 200
+SIMULATION_DAYS = 211
 '''The number of days to run the simulation.'''
 
 DAILY_CONTACTS = 10
 '''The number of people you come into contact with on a daily basis.'''
 
-TRANSMISSION_PROBABILITY = 0.03
+TRANSMISSION_PROBABILITY = 0.075
 '''the likelihood a 'contagious' person will infect a 'well' person.'''
 
 HEALTH_STATES = {'well': {'days at state': -1,
                           'can be infected': True,
                           'next state': 'infected',
                           'death rate': 0.0},
-                 'infected': {'days at state': 2,
+                 'infected': {'days at state': 4,
                               'can be infected': False,
                               'next state': 'contagious',
                               'death rate': 0.0},
-                 'contagious': {'days at state': 4,
+                 'contagious': {'days at state': 8,
                                 'can be infected': False,
                                 'next state': 'recovering',
-                                'death rate': 0.03},
-                 'recovering': {'days at state': 10,
+                                'death rate': 0.048},
+                 'recovering': {'days at state': 1,
                                 'can be infected': False,
                                 'next state': 'immune',
                                 'death rate': 0.0},
@@ -76,7 +77,8 @@ daily_new_cases = [0]
 daily_new_active_cases = [0]
 daily_new_recoveries = [0]
 daily_new_deaths = [0]
-maximum_active_cases = 0
+maximum_active_cases_day = 0
+maximum_new_cases_day = 0
 for day in range(SIMULATION_DAYS):
     # initialize statistics for today
     new_cases = 0
@@ -138,11 +140,13 @@ for day in range(SIMULATION_DAYS):
     # append the today's statistics to the lists
     cumulative_cases.append(cumulative_cases[day] + new_cases)
     active_cases.append(active_cases[day] + new_cases - new_recoveries - new_deaths)
-    if active_cases[day+1] > maximum_active_cases:
-        maximum_active_cases = active_cases[day+1]
+    if active_cases[day+1] > active_cases[maximum_active_cases_day]:
+        maximum_active_cases_day = day + 1
     cumulative_recoveries.append(cumulative_recoveries[day] + new_recoveries)
     cumulative_deaths.append(cumulative_deaths[day] + new_deaths)
     daily_new_cases.append(new_cases)
+    if daily_new_cases[day+1] > daily_new_cases[maximum_new_cases_day]:
+        maximum_new_cases_day = day + 1
     daily_new_active_cases.append(new_cases - new_recoveries - new_deaths)
     daily_new_recoveries.append(new_recoveries)
     daily_new_deaths.append(new_deaths)
@@ -152,16 +156,19 @@ print('Simulation Summary:')
 print(f'  Cumulative Cases:         {cumulative_cases[SIMULATION_DAYS]:16,}')
 print(f'  Cumulative Recoveries:    {cumulative_recoveries[SIMULATION_DAYS]:16,}')
 print(f'  Cumulative Deaths:        {cumulative_deaths[SIMULATION_DAYS]:16,}')
-print(f'  Maximum Active Cases:     {maximum_active_cases:16,}')
+print(f'  Maximum Active Cases:     {active_cases[maximum_active_cases_day]:16,}: day {maximum_active_cases_day}')
+print(f'  Maximum New Daily Cases:  {daily_new_cases[maximum_new_cases_day]:16,}: day {maximum_new_cases_day}')
 
 # plot the results
 # These are the cumulative stats
+Ro = DAILY_CONTACTS * TRANSMISSION_PROBABILITY * HEALTH_STATES['contagious']['days at state']
 plt.clf()
 plt.title(
-    f'Total Cases Simulation\n {POPULATION} population, '
-    f'{DAILY_CONTACTS} daily contacts @ {TRANSMISSION_PROBABILITY}')
+    f'Total Cases Simulation\n population={POPULATION}, Ro={Ro}')
 plt.xlabel('days')
 plt.ylabel('cumulative number')
+plt.xticks(np.arange(0, SIMULATION_DAYS, 14))
+plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
 plt.plot(cumulative_cases, label='cumulative cases')
 plt.plot(active_cases, label='active cases')
 plt.plot(cumulative_recoveries, label='recoveries')
@@ -173,10 +180,11 @@ plt.pause(0.1)
 #These are the daily stats
 plt.clf()
 plt.title(
-    f'Daily Cases Simulation\n {POPULATION} population, '
-    f'{DAILY_CONTACTS} daily contacts @ {TRANSMISSION_PROBABILITY}')
+    f'Daily Cases Simulation\npopulation={POPULATION}, Ro={Ro}')
 plt.xlabel('days')
 plt.ylabel('daily number')
+plt.xticks(np.arange(0, SIMULATION_DAYS, 14))
+plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
 plt.plot(daily_new_cases, label='daily new cases')
 plt.plot(daily_new_active_cases, label='daily active cases')
 plt.plot(daily_new_recoveries, label='daily recoveries')

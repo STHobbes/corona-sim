@@ -4,6 +4,7 @@ reads a simulation from a file, and plots a simulation.
 """
 import json
 import random
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -40,7 +41,6 @@ CURRENT_TRANSMISSION_PROBABILITY = 'current_transmission_probability'
 CURRENT_TESTING_PROBABILITY = 'current_testing_probability'
 NORMAL_DAILY_CONTACTS = 'normal_daily_contacts'
 NORMAL_TRANSMISSION_PROBABILITY = 'normal_transmission_probability'
-
 
 # State for the current day.
 DAILY_POPULATION = 'today_population'
@@ -90,7 +90,7 @@ _SERIALIZE_KEYS = [
     ACTIVE_CONFIRMED_CASES_SERIES, ACTIVE_HOSPITALIZED_CASES_SERIES, ACTIVE_ICU_CASES_SERIES,
     NEW_CASES_SERIES, NEW_CONFIRMED_CASES_SERIES, NEW_ACTIVE_CASES_SERIES,
     NEW_CONFIRMED_ACTIVE_CASES_SERIES, NEW_RECOVERIES_SERIES, NEW_DEATHS_SERIES
- ]
+]
 
 
 def create_initial_state(health_states, set_default_health_state,
@@ -129,6 +129,8 @@ def create_initial_state(health_states, set_default_health_state,
         SET_INFECTED: set_initial_infected_state,
         DAILY_HEALTH_EVALUATION: daily_health_evaluation,
         DAILY_EVALUATE_CONTACTS: evaluate_contacts,
+        DAILY_HOSPITALIZATIONS: 0,
+        DAILY_DEATHS: 0,
         UPDATE_TESTING_RATES: update_testing_rates,
         PHASES: phases,
         DAILY_PHASE_EVALUATION: daily_phase_evaluation,
@@ -192,6 +194,10 @@ def run_simulation(ss):
     ss[DAILY_POPULATION] = ss[POPULATION]
 
     for day in range(ss[SIMULATION_DAYS]):
+        sys.stdout.write(f' evaluate day {day}: population {ss[DAILY_POPULATION]};'
+                         f' hospitalizations {ss[ACTIVE_HOSPITALIZED_CASES_SERIES][day]};'
+                         f' deaths {ss[CUMULATIVE_CONFIRMED_DEATHS_SERIES][day]}             \r')
+        sys.stdout.flush()
         # Does the simulation state change today based on the
         # numbers at the beginning of the day??
         if ss[DAILY_PHASE_EVALUATION](ss, day):
@@ -310,7 +316,8 @@ def graph_simulation(ss, title, series):
     plt.title(title)
     plt.xlabel('days')
     plt.ylabel('count')
-    plt.xticks(np.arange(0, 211, 14))
+    tic_spacing = 14 if ss[SIMULATION_DAYS] <= 211 else 28
+    plt.xticks(np.arange(0, ss[SIMULATION_DAYS], tic_spacing))
     plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
     for key, phase in ss[PHASES].items():
         start_day = phase.get('start day', 0)
@@ -326,3 +333,27 @@ def graph_simulation(ss, title, series):
     plt.legend()
     plt.show()
     plt.pause(0.1)
+
+
+def test_condition(ss, condition, day):
+    advance = False
+    if condition['type'] == 'cumulative cases exceeds':
+        advance = ss[CUMULATIVE_CASES_SERIES][day] >= condition['count']
+    elif condition['type'] == 'daily new confirmed above':
+        advance = ss[NEW_CONFIRMED_CASES_SERIES][day] >= condition['count']
+    elif condition['type'] == 'daily new confirmed below':
+        advance = ss[NEW_CONFIRMED_CASES_SERIES][day] <= condition['count']
+    elif condition['type'] == 'cumulative confirmed cases exceeds':
+        advance = ss[CUMULATIVE_CONFIRMED_CASES_SERIES][day] >= condition['count']
+    elif condition['type'] == 'days after max active':
+        advance = day - ss[MAX_ACTIVE_CASES] > condition['days']
+    elif condition['type'] == 'days after confirmed max active':
+        advance = day - ss[MAX_ACTIVE_CONFIRMED_CASES] > condition['days']
+    elif condition['type'] == 'days in phase':
+        advance = day - ss[CURRENT_PHASE]['start day'] > condition['days']
+    elif condition['type'] == 'day in simulation':
+        advance = day == condition['day']
+    else:
+        print(f'Unrecognized condition: "{condition["type"]}"')
+
+    return advance

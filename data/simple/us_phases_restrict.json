@@ -1,0 +1,77 @@
+{
+  "initial phase": "normal",
+  "phases": {
+    "normal": {
+      "name": "normal",
+      "daily contacts": 22,
+      "transmission probability": 0.0300,
+      "testing probability": 0.20,
+      "next phase": "restrict",
+      "condition": {
+        "type": "daily new confirmed above",
+        "count": 150
+      }
+    },
+    "restrict": {
+      "name": "restrict",
+      "daily contacts": 12,
+      "transmission probability": 0.0300,
+      "testing probability": 0.25,
+      "next phase": "stay at home",
+      "condition": {
+        "type": "daily new confirmed above",
+        "count": 300
+      }
+    },
+    "stay at home": {
+      "name": "stay at home",
+      "daily contacts": 10,
+      "transmission probability": 0.0185,
+      "testing probability": 0.30,
+      "next phase": "ease_1",
+      "condition": {
+        "type": "daily new confirmed below",
+        "count": 200
+      }
+    },
+    "ease_1": {
+      "name": "ease_1",
+      "daily contacts": 11,
+      "transmission probability": 0.0180,
+      "testing probability": 0.35,
+      "next phase": "ease_2",
+      "condition": {
+        "type": "days in phase",
+        "days": 10
+      }
+    },
+    "ease_2": {
+      "name": "ease_2",
+      "daily contacts": 12,
+      "transmission probability": 0.0182,
+      "testing probability": 0.40,
+      "next phase": "reopen",
+      "condition": {
+        "type": "days in phase",
+        "days": 10
+      }
+    },
+    "reopen": {
+      "name": "reopen",
+      "daily contacts": 13,
+      "transmission probability": 0.0200,
+      "testing probability": 0.45,
+      "next phase": "new restrict",
+      "condition": {
+        "type": "daily new confirmed above",
+        "count": 650
+      }
+    },
+    "new restrict": {
+      "name": "new restrict",
+      "daily contacts": 12,
+      "transmission probability": 0.0182,
+      "testing probability": 0.50
+    }
+  }
+}

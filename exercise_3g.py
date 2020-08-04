@@ -1,9 +1,6 @@
 import argparse
-import json
 import random
 import time
-import matplotlib.pyplot as plt
-import numpy as np
 import simulate as s
 import phases
 import covid_state as state
@@ -30,6 +27,7 @@ def run_simulation(args):
         initial_infection=args.infection
     )
     sim_state[s.CURRENT_CONTAGIOUS_DAYS] = state.get_mean_infectious_days()
+    print(f' Contagious days for this disease: {sim_state[s.CURRENT_CONTAGIOUS_DAYS]:.2f}')
     phases.set_initial_phase(sim_state)
     state.set_testing_for_phase(sim_state[s.CURRENT_TESTING_PROBABILITY])
 
@@ -49,10 +47,14 @@ def run_simulation(args):
     for key, value in phases.SIMULATION_PHASES.items():
         if 'start day' in value:
             print(f'      {key}:')
-            print(f'        start day:               {value["start day"]:14,}')
-            print(f'        contacts per day:        {value["daily contacts"]:14,}')
-            print(f'        transmission probability:{value["transmission probability"]:14.4f}')
-            print(f'        Ro:                      {value["Ro"]:14.4f}')
+            print(f'        start day:               {value["start day"]:16,}')
+            print(f'        contacts per day:        {value["daily contacts"]:16,}')
+            print(f'        transmission probability:{value["transmission probability"]:16.4f}')
+            print(f'        Ro:                      {value["Ro"]:16.4f}')
+            print(f'        daily new cases:         {sim_state[s.NEW_CASES_SERIES][value["start day"]]:16,}')
+            print(f'        cumulative cases:        {sim_state[s.CUMULATIVE_CASES_SERIES][value["start day"]]:16,}')
+            print(f'        deaths:                  '
+                  f'{sim_state[s.CUMULATIVE_CONFIRMED_DEATHS_SERIES][value["start day"]]:16,}')
             if phase_desc != '':
                 phase_desc += ', '
             phase_desc += f'{key} Ro={value["Ro"]:.2f}'

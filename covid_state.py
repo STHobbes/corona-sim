@@ -58,7 +58,7 @@ HEALTH_STATES = {
         'infectious': True,
         'hospitalize': False,
         'icu': False,
-        'activity level': 0.5,
+        'activity level': 0.75,
         'next state': [(1.0, 'immune')]
     },
     'severe': {
@@ -69,7 +69,7 @@ HEALTH_STATES = {
         'infectious': True,
         'hospitalize': True,
         'icu': False,
-        'activity level': 0.05,
+        'activity level': 0.00,
         'next state': [(1.0, 'immune')]
     },
     'critical': {
@@ -80,8 +80,8 @@ HEALTH_STATES = {
         'infectious': True,
         'hospitalize': True,
         'icu': True,
-        'activity level': 0.05,
-        'next state': [(0.8, 'immune'),
+        'activity level': 0.00,
+        'next state': [(0.6, 'immune'),
                        (1.0, 'dead')]
     },
     'immune': {
@@ -104,6 +104,11 @@ HEALTH_STATES = {
 DEFAULT_HEALTH_STATE = HEALTH_STATES['well']
 
 
+def daily_update_state(sim, day):
+
+    return
+
+
 def get_mean_infectious_days():
     """
 
@@ -114,12 +119,12 @@ def get_mean_infectious_days():
     # calculation: Ro = contacts x transmission probability x infectious days
     #
     # OK, this is really difficult because it is not the case that everybody who is contagious is
-    # walking around infecting people. But that is not the case, let us examine this a bit. In a
+    # walking around infecting people, let us examine this a bit. In a
     # disease like COVID-19 we have a number of states that are infectious, and we can assign an activity
     # level that corresponds to the effective number of days they are circulating, for example:
     # - presymptomatic - don't know they have it, don't change behaviour, activity level 1.0
     # - asymptomatic - don't know they have it, don't change behaviour, activity level 1.0
-    # - mild - guess that the average activity level is 0.5 (they don't qualify for testing unless
+    # - mild - guess that the average activity level is 0.5 0r .75 (they don't qualify for testing unless
     #     there is known contact, if symptoms are mild it is like a cold or similar illness - which
     #     really doesn't slow us down that much).
     # - severe & critical - require hospitalization, we might guess there is a little time they had
@@ -141,10 +146,15 @@ def get_mean_infectious_days():
 
 
 def _get_mean_day_for_next_states(this_state):
+    """
+
+    :param this_state:
+    :return:
+    """
     if this_state['days at state'] == -1:
         # this is a terminal state in the state tree
         return 0.0
-    mean_infectious_days = (this_state['days at state'] * this_state['activity level']) \
+    mean_infectious_days = int(this_state['days at state'] * this_state['activity level']) \
         if this_state['infectious'] else 0
     # break this down - the next state has a probability - so
     next_state_list = this_state['next state']
@@ -153,7 +163,7 @@ def _get_mean_day_for_next_states(this_state):
         probability = next_state[0] - (0.0 if last_state is None else last_state[0])
         mean_infectious_days += probability * _get_mean_day_for_next_states(HEALTH_STATES[next_state[1]])
         last_state = next_state
-    return mean_infectious_days
+    return int(mean_infectious_days)
 
 
 def set_default_health_state(person, local):
@@ -271,9 +281,9 @@ def advance_health_state(sim_state, person, old_health_state):
                 if health_state['name'] == 'infected':
                     sim_state[s.DAILY_CASES] += 1
                 elif health_state['name'] == 'dead':
-                    # this person has died
-                    sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
+                    # this person has died (only icu people die)
                     sim_state[s.DAILY_DEATHS] += 1
+                    sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
                     sim_state[s.DAILY_HOSPITALIZATIONS] -= 1
                     sim_state[s.DAILY_ICU] -= 1
                     if person['tested']:
@@ -282,10 +292,11 @@ def advance_health_state(sim_state, person, old_health_state):
                 elif health_state['name'] == 'immune':
                     # This is someone who has recovered
                     if old_health_state['hospitalize']:
+                        # This is someone that was previously hospitalized
+                        sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
                         sim_state[s.DAILY_HOSPITALIZATIONS] -= 1
                         sim_state[s.PEOPLE].append(person)
                         sim_state[s.DAILY_POPULATION] += 1
-                        sim_state[s.HOSPITALIZED_PEOPLE].remove(person)
                         if old_health_state['icu']:
                             sim_state[s.DAILY_ICU] -= 1
                     if person['tested']:
@@ -329,23 +340,25 @@ def evaluate_contacts(sim_state, person, population):
     # must be traced to see if there is an infection event
     population_ct = len(population)
     p_state = person['state']
-    if p_state['can be infected']:
-        # look for contacts with infectious individuals
-        for _ in range(int((sim_state[s.CURRENT_DAILY_CONTACTS] * p_state['activity level']) / 2)):
-            contact = population[random.randint(0, population_ct - 1)]
-            if contact['state']['infectious']:
-                # Oh, this the contact between a healthy person who
-                # can be infected and a 'contagious' person.
-                if random.random() < sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]:
-                    # Bummer, this is an infection contact
-                    advance_health_state(sim_state, person, p_state)
-                    # This person is now infected, I don't think we need to
-                    # worry about any other contacts.
-                    break
-
-    elif p_state['infectious']:
+    # if p_state['can be infected']:
+    #     # look for contacts with infectious individuals
+    #     for _ in range(int((sim_state[s.CURRENT_DAILY_CONTACTS] * p_state['activity level']) / 2)):
+    #         contact = population[random.randint(0, population_ct - 1)]
+    #         if contact['state']['infectious']:
+    #             # Oh, this the contact between a healthy person who
+    #             # can be infected and a 'contagious' person.
+    #             if random.random() < sim_state[s.CURRENT_TRANSMISSION_PROBABILITY]:
+    #                 # Bummer, this is an infection contact
+    #                 advance_health_state(sim_state, person, p_state)
+    #                 # This person is now infected, I don't think we need to
+    #                 # worry about any other contacts.
+    #                 break
+    #
+    # elif p_state['infectious']:
+    #     for _ in range(int((sim_state[s.CURRENT_DAILY_CONTACTS] * p_state['activity level']) / 2)):
+    if p_state['infectious']:
         # look for contacts with people who could be infected.
-        for _ in range(int((sim_state[s.CURRENT_DAILY_CONTACTS] * p_state['activity level']) / 2)):
+        for _ in range(int(sim_state[s.CURRENT_DAILY_CONTACTS] * p_state['activity level'])):
             contact = population[random.randint(0, population_ct - 1)]
             if contact['state']['can be infected']:
                 # Oh, this the contact between 'contagious' person

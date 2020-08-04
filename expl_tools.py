@@ -35,7 +35,7 @@ def read_run_set(data_directory, base_file, set_size=10):
 
 
 def plot_curves(curves, title,
-                xlabel='days', ylabel='count'):
+                xlabel='days', ylabel='count', hilight=2):
     """
     Plot a set of curves
 
@@ -44,18 +44,26 @@ def plot_curves(curves, title,
     :param title: (str, required) The title for the plot.
     :param xlabel: (str, optional, default='days') The X axis label.
     :param ylabel: (str, optional, default='count') The Y axis label.
+    :param hilight: (int, optional, default=1) The Y axis label.
     :return: None
     """
     plt.clf()
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    max_len = 0
     for label, data in curves.items():
-        tic_spacing = 14 if len(data) <= 211 else 28
-        plt.xticks(np.arange(0, len(data), tic_spacing))
+        if len(data) > max_len:
+            max_len = len(data)
+    tic_spacing = 14 if max_len <= 212 else 28
+    plt.xticks(np.arange(0, max_len, tic_spacing))
     plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
+    z = 1000
+    width = hilight
     for label, data in curves.items():
-        plt.plot(data, label=label)
+        plt.plot(data, label=label, zorder=z, linewidth=width)
+        width = 2
+        z -= 50
     plt.legend()
     plt.show()
     plt.pause(0.1)

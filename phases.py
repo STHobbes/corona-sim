@@ -70,6 +70,8 @@ def _set_simulation_phase(sim, phase_key, start_day):
     phase['Ro'] = sim[s.CURRENT_DAILY_CONTACTS] * sim[s.CURRENT_TRANSMISSION_PROBABILITY] \
                   * sim[s.CURRENT_CONTAGIOUS_DAYS]
     phase['start day'] = start_day
+    print(f' advance to {phase["name"]} on day {start_day},'
+          f' Ro={phase["Ro"]}                                                             ')
     return
 
 
@@ -85,20 +87,27 @@ def daily_phase_evaluation(sim, day):
     advance = False
     if sim[s.HAS_NEXT_PHASE]:
         condition = sim[s.CURRENT_PHASE]['condition']
-        if condition['type'] == 'cumulative cases exceeds':
-            advance = sim[s.CUMULATIVE_CASES_SERIES][day] >= condition['count']
-        elif condition['type'] == 'cumulative confirmed cases exceeds':
-            advance = sim[s.CUMULATIVE_CONFIRMED_CASES_SERIES][day] >= condition['count']
-        elif condition['type'] == 'days after max active':
-            advance = day - sim[s.MAX_ACTIVE_CASES] > condition['days']
-        elif condition['type'] == 'days after confirmed max active':
-            advance = day - sim[s.MAX_ACTIVE_CONFIRMED_CASES] > condition['days']
-        elif condition['type'] == 'days in phase':
-            advance = day - sim[s.CURRENT_PHASE]['start day'] > condition['days']
-        # Add new conditions here
+        # if condition['type'] == 'cumulative cases exceeds':
+        #     advance = sim[s.CUMULATIVE_CASES_SERIES][day] >= condition['count']
+        # elif condition['type'] == 'daily new confirmed above':
+        #     advance = sim[s.NEW_CONFIRMED_CASES_SERIES][day] >= condition['count']
+        # elif condition['type'] == 'daily new confirmed below':
+        #     advance = sim[s.NEW_CONFIRMED_CASES_SERIES][day] <= condition['count']
+        # elif condition['type'] == 'cumulative confirmed cases exceeds':
+        #     advance = sim[s.CUMULATIVE_CONFIRMED_CASES_SERIES][day] >= condition['count']
+        # elif condition['type'] == 'days after max active':
+        #     advance = day - sim[s.MAX_ACTIVE_CASES] > condition['days']
+        # elif condition['type'] == 'days after confirmed max active':
+        #     advance = day - sim[s.MAX_ACTIVE_CONFIRMED_CASES] > condition['days']
+        # elif condition['type'] == 'days in phase':
+        #     advance = day - sim[s.CURRENT_PHASE]['start day'] > condition['days']
+        # elif condition['type'] == 'day in simulation':
+        #     advance = day == condition['day']
+        # else:
+        #     print(f'Unrecognized phase advancement condition: "{condition["type"]}"')
 
+        advance = s.test_condition(sim, condition, day)
         if advance:
-            print(f' advance to {sim[s.CURRENT_PHASE]["next phase"]} on day {day}')
             _set_simulation_phase(sim, sim[s.CURRENT_PHASE]['next phase'], day)
 
     return advance
