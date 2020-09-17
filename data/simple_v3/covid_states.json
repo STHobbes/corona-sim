@@ -1,0 +1,207 @@
+{
+  "health states": {
+    "well": {
+      "name": "well",
+      "days at state": -1,
+      "can be infected": true,
+      "infectious": false,
+      "hospitalize": false,
+      "icu": false,
+      "activity level": 1.0,
+      "next state": [
+        [
+          1.0,
+          "infected"
+        ]
+      ]
+    },
+    "infected": {
+      "name": "infected",
+      "days at state": 4.6,
+      "standard_deviation": 2.5,
+      "can be infected": false,
+      "infectious": false,
+      "hospitalize": false,
+      "icu": false,
+      "activity level": 1.0,
+      "next state": [
+        [
+          0.4,
+          "asymptomatic"
+        ],
+        [
+          1.0,
+          "presymptomatic"
+        ]
+      ]
+    },
+    "asymptomatic": {
+      "name": "asymptomatic",
+      "days at state": 8.0,
+      "standard_deviation": 2.5,
+      "can be infected": false,
+      "infectious": true,
+      "hospitalize": false,
+      "icu": false,
+      "activity level": 1.0,
+      "next state": [
+        [
+          1.0,
+          "immune"
+        ]
+      ]
+    },
+    "presymptomatic": {
+      "name": "presymptomatic",
+      "days at state": 1.0,
+      "standard_deviation": 2.5,
+      "can be infected": false,
+      "infectious": true,
+      "hospitalize": false,
+      "icu": false,
+      "activity level": 1.0,
+      "next state": [
+        [
+          0.57,
+          "mild"
+        ],
+        [
+          0.86,
+          "severe"
+        ],
+        [
+          1.0,
+          "critical"
+        ]
+      ]
+    },
+    "mild": {
+      "name": "mild",
+      "days at state": 8.0,
+      "standard_deviation": 2.0,
+      "can be infected": false,
+      "infectious": true,
+      "hospitalize": false,
+      "icu": false,
+      "activity level": 0.75,
+      "next state": [
+        [
+          1.0,
+          "immune"
+        ]
+      ]
+    },
+    "severe": {
+      "name": "severe",
+      "days at state": 14.0,
+      "standard_deviation": 2.4,
+      "can be infected": false,
+      "infectious": true,
+      "hospitalize": true,
+      "icu": false,
+      "activity level": 0.00,
+      "next state": [
+        [
+          1.0,
+          "immune"
+        ]
+      ]
+    },
+    "critical": {
+      "name": "critical",
+      "days at state": 14.0,
+      "standard_deviation": 2.4,
+      "can be infected": false,
+      "infectious": true,
+      "hospitalize": true,
+      "icu": true,
+      "activity level": 0.00,
+      "next state": [
+        [
+          0.80,
+          "immune"
+        ],
+        [
+          1.0,
+          "dead"
+        ]
+      ]
+    },
+    "immune": {
+      "name": "immune",
+      "days at state": -1,
+      "can be infected": false,
+      "infectious": false,
+      "hospitalize": false,
+      "icu": false,
+      "next state": [
+        [
+          1.0,
+          "well"
+        ]
+      ],
+      "death rate": 0.0
+    },
+    "dead": {
+      "name": "dead",
+      "days at state": -1,
+      "can be infected": false,
+      "infectious": false
+    }
+  },
+  "initial state": "well",
+  "state mods": [
+    {
+      "condition": {
+        "type": "day in simulation",
+        "day": 38
+      },
+      "path": [
+        "critical",
+        "next state",
+        0,
+        0
+      ],
+      "value": 0.87
+    },
+    {
+      "condition": {
+        "type": "day in simulation",
+        "day": 60
+      },
+      "path": [
+        "critical",
+        "next state",
+        0,
+        0
+      ],
+      "value": 0.90
+    },
+    {
+      "condition": {
+        "type": "day in simulation",
+        "day":73
+      },
+      "path": [
+        "critical",
+        "next state",
+        0,
+        0
+      ],
+      "value": 0.92
+    },
+    {
+      "condition": {
+        "type": "day in simulation",
+        "day":105
+      },
+      "path": [
+        "critical",
+        "next state",
+        0,
+        0
+      ],
+      "value": 0.947
+    }
+  ]
+}

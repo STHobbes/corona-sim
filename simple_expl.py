@@ -307,7 +307,7 @@ new_cases_confirmed_set = {
 tools.plot_curves(new_cases_confirmed_set, 'Best and Worst New Confirmed Cases Scenarios', hilight=4)
 
 cumulative_cases_set = {
-    'actual deaths, Johns Hopkins University': us_cumulative,
+    'actual cases, Johns Hopkins University': us_cumulative,
     'unrestricted reopen, Re=1.56': ave_cases,
     "new stay at home at 60K/day": ave_cases_lock,
     "wear masks at 60K/day": ave_cases_restrict,
@@ -325,7 +325,7 @@ cumulative_deaths_set = {
 tools.plot_curves(cumulative_deaths_set, 'Best and Worst Cumulative Deaths Scenarios', hilight=4)
 
 hospitalizations_set = {
-    'unrestricted reopen, Johns Hopkins University': ave_hospitalizations,
+    'unrestricted reopen, Re=1.56': ave_hospitalizations,
     "new stay at home at 60K/day": ave_hospitalizations_lock,
     "wear masks at 60K/day": ave_hospitalizations_restrict,
     "wear masks, open schools at 175": ave_hospitalizations_restrict_school

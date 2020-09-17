@@ -4,6 +4,7 @@ in the COVID-19 Daily Update reports and COVID-19 Weekly Reports. The fist ste o
 reports, and the second set of columns is from the Weekly Reports.
 """
 import csv
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -54,39 +55,48 @@ FEMALE_PERCENT = MALE_PERCENT + 1
 AGE_0_19_CASES = FEMALE_PERCENT + 1
 AGE_0_19_NEW = AGE_0_19_CASES + 1
 AGE_0_19_DEATHS = AGE_0_19_NEW + 1
-AGE_0_19_HOSP = AGE_0_19_DEATHS + 1
+AGE_0_19_NEW_DEATHS = AGE_0_19_DEATHS + 1
+AGE_0_19_HOSP = AGE_0_19_NEW_DEATHS + 1
 AGE_20_29_CASES = AGE_0_19_HOSP + 1
 AGE_20_29_NEW = AGE_20_29_CASES + 1
 AGE_20_29_DEATHS = AGE_20_29_NEW + 1
-AGE_20_29_HOSP = AGE_20_29_DEATHS + 1
+AGE_20_29_NEW_DEATHS = AGE_20_29_DEATHS + 1
+AGE_20_29_HOSP = AGE_20_29_NEW_DEATHS + 1
 AGE_30_39_CASES = AGE_20_29_HOSP + 1
 AGE_30_39_NEW = AGE_30_39_CASES + 1
 AGE_30_39_DEATHS = AGE_30_39_NEW + 1
-AGE_30_39_HOSP = AGE_30_39_DEATHS + 1
+AGE_30_39_NEW_DEATHS = AGE_30_39_DEATHS + 1
+AGE_30_39_HOSP = AGE_30_39_NEW_DEATHS + 1
 AGE_40_49_CASES = AGE_30_39_HOSP + 1
 AGE_40_49_NEW = AGE_40_49_CASES + 1
 AGE_40_49_DEATHS = AGE_40_49_NEW + 1
-AGE_40_49_HOSP = AGE_40_49_DEATHS + 1
+AGE_40_49_NEW_DEATHS = AGE_40_49_DEATHS + 1
+AGE_40_49_HOSP = AGE_40_49_NEW_DEATHS + 1
 AGE_50_59_CASES = AGE_40_49_HOSP + 1
 AGE_50_59_NEW = AGE_50_59_CASES + 1
 AGE_50_59_DEATHS = AGE_50_59_NEW + 1
-AGE_50_59_HOSP = AGE_50_59_DEATHS + 1
+AGE_50_59_NEW_DEATHS = AGE_50_59_DEATHS + 1
+AGE_50_59_HOSP = AGE_50_59_NEW_DEATHS + 1
 AGE_60_69_CASES = AGE_50_59_HOSP + 1
 AGE_60_69_NEW = AGE_60_69_CASES + 1
 AGE_60_69_DEATHS = AGE_60_69_NEW + 1
-AGE_60_69_HOSP = AGE_60_69_DEATHS + 1
+AGE_60_69_NEW_DEATHS = AGE_60_69_DEATHS + 1
+AGE_60_69_HOSP = AGE_60_69_NEW_DEATHS + 1
 AGE_70_79_CASES = AGE_60_69_HOSP + 1
 AGE_70_79_NEW = AGE_70_79_CASES + 1
 AGE_70_79_DEATHS = AGE_70_79_NEW + 1
-AGE_70_79_HOSP = AGE_70_79_DEATHS + 1
+AGE_70_79_NEW_DEATHS = AGE_70_79_DEATHS + 1
+AGE_70_79_HOSP = AGE_70_79_NEW_DEATHS + 1
 AGE_80_PLUS_CASES = AGE_70_79_HOSP + 1
 AGE_80_PLUS_NEW = AGE_80_PLUS_CASES + 1
 AGE_80_PLUS_DEATHS = AGE_80_PLUS_NEW + 1
-AGE_80_PLUS_HOSP = AGE_80_PLUS_DEATHS + 1
+AGE_80_PLUS_NEW_DEATHS = AGE_80_PLUS_DEATHS + 1
+AGE_80_PLUS_HOSP = AGE_80_PLUS_NEW_DEATHS + 1
 AGE_NOT_AVAIL_CASES = AGE_80_PLUS_HOSP + 1
 AGE_NOT_AVAIL_NEW = AGE_NOT_AVAIL_CASES + 1
 AGE_NOT_AVAIL_DEATHS = AGE_NOT_AVAIL_NEW + 1
-AGE_NOT_AVAIL_HOSP = AGE_NOT_AVAIL_DEATHS + 1
+AGE_NOT_AVAIL_NEW_DEATHS = AGE_NOT_AVAIL_DEATHS + 1
+AGE_NOT_AVAIL_HOSP = AGE_NOT_AVAIL_NEW_DEATHS + 1
 WHITE_CASES = AGE_NOT_AVAIL_HOSP + 1
 WHITE_DEATHS = WHITE_CASES + 1
 WHITE_HOSP = WHITE_DEATHS + 1
@@ -169,6 +179,9 @@ def strip_graph_data_set(labels, data_set, title):
     # # We need to transform the data from raw data to percentage (fraction)
     # as_percent = data.divide(data.sum(axis=1), axis=0)
     # Make the plot
+    tic_spacing = 2
+    plt.xticks(np.arange(0, len(data_set[0]), tic_spacing))
+    plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
     plt.stackplot(range(1, len(data_set[0]) + 1), *[data[label] for label in labels], labels=labels)
     plt.legend(loc='upper left')
     plt.margins(0, 0)
@@ -190,6 +203,9 @@ def normalized_strip_graph_data_set(labels, data_set, title):
     plt.title(title)
     plt.xlabel('week')
     plt.ylabel('percentage')
+    tic_spacing = 2
+    plt.xticks(np.arange(0, len(data_set[0]), tic_spacing))
+    plt.grid(b=True, which='major', color='#aaaaff', linestyle='-')
     # Make data
     data = pd.DataFrame({labels[i]: data_set[i] for i in range(len(labels))},
                         index=range(1, len(data_set[0]) + 1))
@@ -225,6 +241,11 @@ cases_by_age = [[] for _ in age_labels]
 NEW_BY_AGE_INDS = [AGE_0_19_NEW, AGE_20_29_NEW, AGE_30_39_NEW, AGE_40_49_NEW, AGE_50_59_NEW,
                    AGE_60_69_NEW, AGE_70_79_NEW, AGE_80_PLUS_NEW, AGE_NOT_AVAIL_NEW]
 new_by_age = [[] for _ in age_labels]
+
+NEW_DEATHS_BY_AGE_INDS = [AGE_0_19_NEW_DEATHS, AGE_20_29_NEW_DEATHS, AGE_30_39_NEW_DEATHS, AGE_40_49_NEW_DEATHS,
+                          AGE_50_59_NEW_DEATHS, AGE_60_69_NEW_DEATHS, AGE_70_79_NEW_DEATHS, AGE_80_PLUS_NEW_DEATHS,
+                          AGE_NOT_AVAIL_NEW_DEATHS]
+new_deaths_by_age = [[] for _ in age_labels]
 
 HOSP_BY_AGE_INDS = [AGE_0_19_HOSP, AGE_20_29_HOSP, AGE_30_39_HOSP, AGE_40_49_HOSP, AGE_50_59_HOSP,
                     AGE_60_69_HOSP, AGE_70_79_HOSP, AGE_80_PLUS_HOSP, AGE_NOT_AVAIL_HOSP]
@@ -305,6 +326,8 @@ with open('./data/oregon/oregon.csv', 'r') as csv_file:
                                                  'hospitalizations', 'age')
                 append_weekly_report_to_data_set(row, DEATHS_BY_AGE_INDS, deaths_by_age, this_weeks_death,
                                                  'deaths', 'age')
+                append_weekly_report_to_data_set(row, NEW_DEATHS_BY_AGE_INDS, new_deaths_by_age, this_weeks_death,
+                                                 'new deaths', 'age')
                 append_weekly_report_to_data_set(row, HOSP_BY_RACE_INDS, hosp_by_race, this_weeks_hosp,
                                                  'hospitalizations', 'race')
                 append_weekly_report_to_data_set(row, DEATHS_BY_RACE_INDS, deaths_by_race, this_weeks_death,
@@ -328,24 +351,25 @@ plt.legend()
 plt.show()
 plt.pause(0.1)
 
-strip_graph_data_set(age_labels, cases_by_age, 'Cumulative Cases by Age')
+# strip_graph_data_set(age_labels, cases_by_age, 'Cumulative Cases by Age')
 normalized_strip_graph_data_set(age_labels, cases_by_age, 'Cumulative Cases by Age')
 normalized_strip_graph_data_set(age_labels, new_by_age, 'Weekly Cases by Age')
-strip_graph_data_set(age_labels, hosp_by_age, 'Cumulative Hospitalizations by Age')
-normalized_strip_graph_data_set(age_labels, hosp_by_age, 'Hospitalizations by Age')
-strip_graph_data_set(age_labels, deaths_by_age, 'Cumulative Deaths by Age')
+# strip_graph_data_set(age_labels, deaths_by_age, 'Cumulative Deaths by Age')
 normalized_strip_graph_data_set(age_labels, deaths_by_age, 'Deaths by Age')
+normalized_strip_graph_data_set(age_labels, new_deaths_by_age, 'Weekly Deaths by Age')
+# strip_graph_data_set(age_labels, hosp_by_age, 'Cumulative Hospitalizations by Age')
+normalized_strip_graph_data_set(age_labels, hosp_by_age, 'Hospitalizations by Age')
 
-strip_graph_data_set(race_labels, cases_by_race, 'Cumulative Cases by Race')
-normalized_strip_graph_data_set(race_labels, cases_by_race, 'Cases by Race')
-strip_graph_data_set(race_labels, hosp_by_race, 'Cumulative Hospitalizations by Race')
-normalized_strip_graph_data_set(race_labels, hosp_by_race, 'Hospitalizations by Race')
-strip_graph_data_set(race_labels, deaths_by_race, 'Cumulative Deaths by Race')
-normalized_strip_graph_data_set(race_labels, deaths_by_race, 'Deaths by Race')
+# strip_graph_data_set(race_labels, cases_by_race, 'Cumulative Cases by Race')
+# normalized_strip_graph_data_set(race_labels, cases_by_race, 'Cases by Race')
+# strip_graph_data_set(race_labels, hosp_by_race, 'Cumulative Hospitalizations by Race')
+# normalized_strip_graph_data_set(race_labels, hosp_by_race, 'Hospitalizations by Race')
+# strip_graph_data_set(race_labels, deaths_by_race, 'Cumulative Deaths by Race')
+# normalized_strip_graph_data_set(race_labels, deaths_by_race, 'Deaths by Race')
 
-strip_graph_data_set(ethnicity_labels, cases_by_ethnicity, 'Cumulative Cases by Ethnicity')
-normalized_strip_graph_data_set(ethnicity_labels, cases_by_ethnicity, 'Cases by Ethnicity')
-strip_graph_data_set(ethnicity_labels, hosp_by_ethnicity, 'Cumulative Hospitalizations by Ethnicity')
-normalized_strip_graph_data_set(ethnicity_labels, hosp_by_ethnicity, 'Hospitalizations by Ethnicity')
-strip_graph_data_set(ethnicity_labels, deaths_by_ethnicity, 'Cumulative Deaths by Ethnicity')
-normalized_strip_graph_data_set(ethnicity_labels, deaths_by_ethnicity, 'Deaths by Ethnicity')
+# strip_graph_data_set(ethnicity_labels, cases_by_ethnicity, 'Cumulative Cases by Ethnicity')
+# normalized_strip_graph_data_set(ethnicity_labels, cases_by_ethnicity, 'Cases by Ethnicity')
+# strip_graph_data_set(ethnicity_labels, hosp_by_ethnicity, 'Cumulative Hospitalizations by Ethnicity')
+# normalized_strip_graph_data_set(ethnicity_labels, hosp_by_ethnicity, 'Hospitalizations by Ethnicity')
+# strip_graph_data_set(ethnicity_labels, deaths_by_ethnicity, 'Cumulative Deaths by Ethnicity')
+# normalized_strip_graph_data_set(ethnicity_labels, deaths_by_ethnicity, 'Deaths by Ethnicity')
