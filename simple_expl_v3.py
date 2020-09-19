@@ -109,7 +109,7 @@ data_dir = './data/simple_v3/'
 # us_set = tools.read_run_set(data_dir, 'us_3280K', 5)
 us_set_lock = tools.read_run_set(data_dir, 'us_3280K_lock', 10)
 us_set_restart = tools.read_run_set(data_dir, 'us_3280K_restart', 10)
-# us_set_restrict_school = tools.read_run_set(data_dir, 'us_3280K_restrict_schl', 5)
+us_set_restart_univ = tools.read_run_set(data_dir, 'us_3280K_restart_univ', 10)
 characterize_phases(us_set_lock)
 
 us_daily_new = []
@@ -183,53 +183,53 @@ ave_cases_restrict = tools.plot_run_set_series(
 ave_deaths_restrict = tools.plot_run_set_series(
     us_set_restart, s.CUMULATIVE_DEATHS_SERIES, title_template)
 
-# title_template = '{} Simulation, 2nd Wave Restriction,\nschool reopen day 175, pop: 3,280,000'
-# ave_new_cases_restrict_school = tools.plot_run_set_series(
-#     us_set_restrict_school, s.NEW_CASES_SERIES, title_template)
-#
-# ave_new_confirmed_cases_restrict_school = tools.plot_run_set_series(
-#     us_set_restrict_school, s.NEW_CONFIRMED_CASES_SERIES, title_template)
-#
-# ave_hospitalizations_restrict_school = tools.plot_run_set_series(
-#     us_set_restrict_school, s.ACTIVE_HOSPITALIZED_CASES_SERIES, title_template)
-#
-# ave_cases_restrict_school = tools.plot_run_set_series(
-#     us_set_restrict_school, s.CUMULATIVE_CONFIRMED_CASES_SERIES, title_template)
-#
-# ave_deaths_restrict_school = tools.plot_run_set_series(
-#     us_set_restrict_school, s.CUMULATIVE_DEATHS_SERIES, title_template)
+title_template = '{} Simulation, 2nd Wave Restriction,\nuniv reopen day 175, pop: 3,280,000'
+ave_new_cases_restart_univ = tools.plot_run_set_series(
+    us_set_restart_univ, s.NEW_CASES_SERIES, title_template)
+
+ave_new_confirmed_cases_restart_univ = tools.plot_run_set_series(
+    us_set_restart_univ, s.NEW_CONFIRMED_CASES_SERIES, title_template)
+
+ave_hospitalizations_restart_univ = tools.plot_run_set_series(
+    us_set_restart_univ, s.ACTIVE_HOSPITALIZED_CASES_SERIES, title_template)
+
+ave_cases_restart_univ = tools.plot_run_set_series(
+    us_set_restart_univ, s.CUMULATIVE_CONFIRMED_CASES_SERIES, title_template)
+
+ave_deaths_restart_univ = tools.plot_run_set_series(
+    us_set_restart_univ, s.CUMULATIVE_DEATHS_SERIES, title_template)
 
 new_cases_confirmed_set = {
     'actual new cases, Johns Hopkins University': us_daily_new_7_day,
     # 'unrestricted reopen, Re=1.56': ave_new_confirmed_cases,
-    "masks restrictions": ave_new_confirmed_cases_lock,
-    "restart": ave_new_confirmed_cases_restrict
-    # "wear masks, open schools at 175": ave_new_confirmed_cases_restrict_school
+    "full mask usage": ave_new_confirmed_cases_lock,
+    "restart": ave_new_confirmed_cases_restrict,
+    "restart, open univ. at 175": ave_new_confirmed_cases_restart_univ
 }
 tools.plot_curves(new_cases_confirmed_set, 'Best and Worst New Confirmed Cases Scenarios', hilight=4)
 
 cumulative_cases_set = {
     'actual cases, Johns Hopkins University': us_cumulative,
     # 'unrestricted reopen, Re=1.56': ave_cases,
-    "masks restrictions": ave_cases_lock,
-    "restart": ave_cases_restrict
-    # "wear masks, open schools at 175": ave_cases_restrict_school
+    "full mask usage": ave_cases_lock,
+    "restart": ave_cases_restrict,
+    "wear masks, open schools at 175": ave_cases_restart_univ
 }
 tools.plot_curves(cumulative_cases_set, 'Best and Worst Cumulative Cases Scenarios', hilight=4)
 
 cumulative_deaths_set = {
     'actual deaths, Johns Hopkins University': us_deaths,
     # 'unrestricted reopen, Re=1.56': ave_deaths,
-    "masks restrictions": ave_deaths_lock,
-    "restart": ave_deaths_restrict
-    # "wear masks, open schools at 175": ave_deaths_restrict_school
+    "full mask usage": ave_deaths_lock,
+    "restart": ave_deaths_restrict,
+    "restart, open univ. at 175": ave_deaths_restart_univ
 }
 tools.plot_curves(cumulative_deaths_set, 'Best and Worst Cumulative Deaths Scenarios', hilight=4)
 
 hospitalizations_set = {
     # 'unrestricted reopen, Re=1.56': ave_hospitalizations,
-    "masks restrictions": ave_hospitalizations_lock,
-    "restart": ave_hospitalizations_restrict
-    # "wear masks, open schools at 175": ave_hospitalizations_restrict_school
+    "full mask usage": ave_hospitalizations_lock,
+    "restart": ave_hospitalizations_restrict,
+    "restart, open univ. at 175": ave_hospitalizations_restart_univ
 }
 tools.plot_curves(hospitalizations_set, 'Best and Worst Hospitalizations Scenarios')

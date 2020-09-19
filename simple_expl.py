@@ -150,8 +150,8 @@ data_dir = './data/simple_v2/'
 #     'Ro = 0.80 - 2': tools.read_data_file(f'{data_dir}Ro0_80_328000_2.json')
 # }
 
-us_set = tools.read_run_set(data_dir, 'us_3280K', 5)
-us_set_lock = tools.read_run_set(data_dir, 'us_3280K_at_home', 5)
+us_set = tools.read_run_set(data_dir, 'us_3280K', 10)
+us_set_lock = tools.read_run_set(data_dir, 'us_3280K_at_home', 10)
 us_set_restrict = tools.read_run_set(data_dir, 'us_3280K_restrict', 5)
 us_set_restrict_school = tools.read_run_set(data_dir, 'us_3280K_restrict_schl', 5)
 characterize_phases(us_set_restrict_school)
