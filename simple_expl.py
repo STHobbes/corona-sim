@@ -298,36 +298,36 @@ ave_deaths_restrict_school = tools.plot_run_set_series(
     us_set_restrict_school, s.CUMULATIVE_DEATHS_SERIES, title_template)
 
 new_cases_confirmed_set = {
-    'actual new cases, Johns Hopkins University': us_daily_new_7_day,
+    'actual new cases, 7 day ave., Johns Hopkins University': us_daily_new_7_day,
     'unrestricted reopen, Re=1.56': ave_new_confirmed_cases,
-    "new stay at home at 60K/day": ave_new_confirmed_cases_lock,
-    "wear masks at 60K/day": ave_new_confirmed_cases_restrict,
-    "wear masks, open schools at 175": ave_new_confirmed_cases_restrict_school
+    "new stay at home at 60K/day, Re=0.93": ave_new_confirmed_cases_lock,
+    "wear masks at 60K/day, Re=1.00": ave_new_confirmed_cases_restrict,
+    "wear masks, open schools at 175, Re=1.07": ave_new_confirmed_cases_restrict_school
 }
 tools.plot_curves(new_cases_confirmed_set, 'Best and Worst New Confirmed Cases Scenarios', hilight=4)
 
 cumulative_cases_set = {
     'actual cases, Johns Hopkins University': us_cumulative,
     'unrestricted reopen, Re=1.56': ave_cases,
-    "new stay at home at 60K/day": ave_cases_lock,
-    "wear masks at 60K/day": ave_cases_restrict,
-    "wear masks, open schools at 175": ave_cases_restrict_school
+    "new stay at home at 60K/day, Re=0.93": ave_cases_lock,
+    "wear masks at 60K/day, Re=1.00": ave_cases_restrict,
+    "wear masks, open schools at 175, Re=1.07": ave_cases_restrict_school
 }
 tools.plot_curves(cumulative_cases_set, 'Best and Worst Cumulative Cases Scenarios', hilight=4)
 
 cumulative_deaths_set = {
     'actual deaths, Johns Hopkins University': us_deaths,
     'unrestricted reopen, Re=1.56': ave_deaths,
-    "new stay at home at 60K/day": ave_deaths_lock,
-    "wear masks at 60K/day": ave_deaths_restrict,
-    "wear masks, open schools at 175": ave_deaths_restrict_school
+    "new stay at home at 60K/day, Re=0.93": ave_deaths_lock,
+    "wear masks at 60K/day, Re=1.00": ave_deaths_restrict,
+    "wear masks, open schools at 175, Re=1.07": ave_deaths_restrict_school
 }
 tools.plot_curves(cumulative_deaths_set, 'Best and Worst Cumulative Deaths Scenarios', hilight=4)
 
 hospitalizations_set = {
     'unrestricted reopen, Re=1.56': ave_hospitalizations,
-    "new stay at home at 60K/day": ave_hospitalizations_lock,
-    "wear masks at 60K/day": ave_hospitalizations_restrict,
-    "wear masks, open schools at 175": ave_hospitalizations_restrict_school
+    "new stay at home at 60K/day, Re=0.93": ave_hospitalizations_lock,
+    "wear masks at 60K/day, Re=1.00": ave_hospitalizations_restrict,
+    "wear masks, open schools at 175, Re=1.07": ave_hospitalizations_restrict_school
 }
 tools.plot_curves(hospitalizations_set, 'Best and Worst Hospitalizations Scenarios')

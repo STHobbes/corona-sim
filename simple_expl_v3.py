@@ -200,36 +200,36 @@ ave_deaths_restart_univ = tools.plot_run_set_series(
     us_set_restart_univ, s.CUMULATIVE_DEATHS_SERIES, title_template)
 
 new_cases_confirmed_set = {
-    'actual new cases, Johns Hopkins University': us_daily_new_7_day,
+    'actual new cases, 7 day ave., Johns Hopkins University': us_daily_new_7_day,
     # 'unrestricted reopen, Re=1.56': ave_new_confirmed_cases,
-    "full mask usage": ave_new_confirmed_cases_lock,
-    "restart": ave_new_confirmed_cases_restrict,
-    "restart, open univ. at 175": ave_new_confirmed_cases_restart_univ
+    "full mask usage, Re=0.79": ave_new_confirmed_cases_lock,
+    "some masks, Re=0.92": ave_new_confirmed_cases_restrict,
+    "some masks, open schools at 168, Re=1.0": ave_new_confirmed_cases_restart_univ
 }
 tools.plot_curves(new_cases_confirmed_set, 'Best and Worst New Confirmed Cases Scenarios', hilight=4)
 
 cumulative_cases_set = {
     'actual cases, Johns Hopkins University': us_cumulative,
     # 'unrestricted reopen, Re=1.56': ave_cases,
-    "full mask usage": ave_cases_lock,
-    "restart": ave_cases_restrict,
-    "wear masks, open schools at 175": ave_cases_restart_univ
+    "full mask usage, Re=0.79": ave_cases_lock,
+    "some masks, Re=0.92 ": ave_cases_restrict,
+    "some masks, open schools at 168, Re=1.0": ave_cases_restart_univ
 }
 tools.plot_curves(cumulative_cases_set, 'Best and Worst Cumulative Cases Scenarios', hilight=4)
 
 cumulative_deaths_set = {
     'actual deaths, Johns Hopkins University': us_deaths,
     # 'unrestricted reopen, Re=1.56': ave_deaths,
-    "full mask usage": ave_deaths_lock,
-    "restart": ave_deaths_restrict,
-    "restart, open univ. at 175": ave_deaths_restart_univ
+    "full mask usage, Re=0.79": ave_deaths_lock,
+    "some masks, Re=0.92 ": ave_deaths_restrict,
+    "some masks, open schools at 168, Re=1.0": ave_deaths_restart_univ
 }
 tools.plot_curves(cumulative_deaths_set, 'Best and Worst Cumulative Deaths Scenarios', hilight=4)
 
 hospitalizations_set = {
     # 'unrestricted reopen, Re=1.56': ave_hospitalizations,
-    "full mask usage": ave_hospitalizations_lock,
-    "restart": ave_hospitalizations_restrict,
-    "restart, open univ. at 175": ave_hospitalizations_restart_univ
+    "full mask usage, Re=0.79": ave_hospitalizations_lock,
+    "some masks, Re=0.92 ": ave_hospitalizations_restrict,
+    "some masks, open schools at 168, Re=1.0": ave_hospitalizations_restart_univ
 }
 tools.plot_curves(hospitalizations_set, 'Best and Worst Hospitalizations Scenarios')

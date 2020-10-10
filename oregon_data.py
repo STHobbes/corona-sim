@@ -283,6 +283,7 @@ deaths_by_ethnicity = [[] for _ in ethnicity_labels]
 with open('./data/oregon/oregon.csv', 'r') as csv_file:
     reader = csv.reader(csv_file)
     row_index = 0
+    last_weeks_death = 0
     for row in reader:
         row_index += 1
         if row_index <= HEADER_ROWS:
@@ -326,7 +327,8 @@ with open('./data/oregon/oregon.csv', 'r') as csv_file:
                                                  'hospitalizations', 'age')
                 append_weekly_report_to_data_set(row, DEATHS_BY_AGE_INDS, deaths_by_age, this_weeks_death,
                                                  'deaths', 'age')
-                append_weekly_report_to_data_set(row, NEW_DEATHS_BY_AGE_INDS, new_deaths_by_age, this_weeks_death,
+                append_weekly_report_to_data_set(row, NEW_DEATHS_BY_AGE_INDS, new_deaths_by_age,
+                                                 this_weeks_death - last_weeks_death,
                                                  'new deaths', 'age')
                 append_weekly_report_to_data_set(row, HOSP_BY_RACE_INDS, hosp_by_race, this_weeks_hosp,
                                                  'hospitalizations', 'race')
@@ -336,6 +338,7 @@ with open('./data/oregon/oregon.csv', 'r') as csv_file:
                                                  this_weeks_hosp, 'hospitalizations', 'ethnicity')
                 append_weekly_report_to_data_set(row, DEATHS_BY_ETHNICITY_INDS, deaths_by_ethnicity,
                                                  this_weeks_death, 'deaths', 'ethnicity')
+                last_weeks_death = this_weeks_death
 
 plt.clf()
 plt.title('weekly summary')

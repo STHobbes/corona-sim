@@ -114,7 +114,7 @@
     "restart universities": {
       "name": "restart universities",
       "daily contacts": 10,
-      "transmission probability": 0.0195,
+      "transmission probability": 0.0200,
       "testing probability": 0.23
     }
   }
