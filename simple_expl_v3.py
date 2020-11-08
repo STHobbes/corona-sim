@@ -109,7 +109,7 @@ data_dir = './data/simple_v3/'
 # us_set = tools.read_run_set(data_dir, 'us_3280K', 5)
 us_set_lock = tools.read_run_set(data_dir, 'us_3280K_lock', 10)
 us_set_restart = tools.read_run_set(data_dir, 'us_3280K_restart', 10)
-us_set_restart_univ = tools.read_run_set(data_dir, 'us_3280K_restart_univ', 10)
+us_set_restart_univ = tools.read_run_set(data_dir, 'us_3280K_mask_univ', 10)
 characterize_phases(us_set_lock)
 
 us_daily_new = []
