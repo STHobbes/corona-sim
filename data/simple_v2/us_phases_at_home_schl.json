@@ -108,12 +108,12 @@
       "next phase": "open schools",
       "condition": {
         "type": "day in simulation",
-        "day": 195
+        "day": 205
       }
     },
     "open schools": {
       "name": "open schools",
-      "daily contacts": 11,
+      "daily contacts": 13,
       "transmission probability": 0.0213,
       "testing probability": 0.45
     }

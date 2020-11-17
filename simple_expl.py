@@ -9,7 +9,8 @@ US_REAL_DATE = 0
 US_DAY_OF_YEAR = US_REAL_DATE + 1
 US_JH_DAY = US_DAY_OF_YEAR + 1
 US_JH_DAILY_NEW = US_JH_DAY + 1
-US_JH_CUMULATIVE = US_JH_DAILY_NEW + 1
+US_JH_CALC_DAILY_NEW = US_JH_DAILY_NEW + 1
+US_JH_CUMULATIVE = US_JH_CALC_DAILY_NEW + 1
 US_JH_DAILY_NEW_7_DAY = US_JH_CUMULATIVE + 1
 US_JH_DEATHS = US_JH_DAILY_NEW_7_DAY + 1
 
@@ -157,6 +158,7 @@ us_set_restrict_school = tools.read_run_set(data_dir, 'us_3280K_mask_schl', 10)
 characterize_phases(us_set_restrict_school)
 
 us_daily_new = []
+us_calc_daily_new = []
 us_daily_new_7_day = []
 us_cumulative = []
 us_deaths = []
@@ -171,6 +173,8 @@ with open('./data/us/US.csv', 'r') as csv_file:
 
         if '' != row[US_JH_DAILY_NEW]:
             us_daily_new.append(int(row[US_JH_DAILY_NEW]) / 100)
+        if '' != row[US_JH_CALC_DAILY_NEW]:
+            us_calc_daily_new.append(int(row[US_JH_CALC_DAILY_NEW]) / 100)
         if '' != row[US_JH_DAILY_NEW_7_DAY]:
             us_daily_new_7_day.append(int(row[US_JH_DAILY_NEW_7_DAY]) / 100)
         if '' != row[US_JH_CUMULATIVE]:

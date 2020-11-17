@@ -108,12 +108,12 @@
       "next phase": "restart universities",
       "condition": {
         "type": "day in simulation",
-        "day": 191
+        "day": 207
       }
     },
     "restart universities": {
       "name": "restart universities",
-      "daily contacts": 10,
+      "daily contacts": 12,
       "transmission probability": 0.0250,
       "testing probability": 0.23
     }
