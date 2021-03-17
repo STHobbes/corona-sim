@@ -119,13 +119,13 @@
       "next phase": "close bars, cafes",
       "condition": {
         "type": "day in simulation",
-        "day": 248
+        "day": 247
       }
     },
     "close bars, cafes": {
       "name": "close bars, cafes",
       "daily contacts": 11,
-      "transmission probability": 0.0242,
+      "transmission probability": 0.0228,
       "testing probability": 0.23
     }
   }

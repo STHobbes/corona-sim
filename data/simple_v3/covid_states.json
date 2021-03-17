@@ -206,7 +206,7 @@
     {
       "condition": {
         "type": "day in simulation",
-        "day":260
+        "day":200
       },
       "path": [
         "critical",
@@ -214,7 +214,20 @@
         0,
         0
       ],
-      "value": 0.97
+      "value": 0.965
+    },
+    {
+      "condition": {
+        "type": "day in simulation",
+        "day":320
+      },
+      "path": [
+        "critical",
+        "next state",
+        0,
+        0
+      ],
+      "value": 0.96
     }
   ]
 }
