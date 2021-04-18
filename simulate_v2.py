@@ -206,7 +206,7 @@ def run_simulation(ss):
             # population we are modeling.
             while ss[INITIAL_INFECTION] > ss[DAILY_CONFIRMED_CASES]:
                 ss[SET_INFECTED](
-                    ss, ss[PEOPLE][random.randint(0, ss[POPULATION] - 1)])
+                    ss, ss[PEOPLE][random.randint(0, len(ss[PEOPLE]) - 1)])
 
             ss[CUMULATIVE_CASES_SERIES].append(ss[DAILY_CASES])
             ss[CUMULATIVE_CONFIRMED_CASES_SERIES].append(ss[DAILY_CONFIRMED_CASES])
