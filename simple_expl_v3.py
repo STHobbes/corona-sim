@@ -112,6 +112,7 @@ us_set_lock = tools.read_run_set(data_dir, 'us_3280K_lock', 10)
 us_set_restart = tools.read_run_set(data_dir, 'us_3280K_restart', 10)
 us_set_restart_univ = tools.read_run_set(data_dir, 'us_3280K_mask_univ', 10)
 us_set_restart_univ_slow = tools.read_run_set(data_dir, 'us_3280K_mask_univ_slow', 10)
+us_set_variants = tools.read_run_set(data_dir, 'us_3280K_variants', 10)
 characterize_phases(us_set_lock)
 
 us_daily_new = []
@@ -220,13 +221,30 @@ ave_cases_restart_univ_slow = tools.plot_run_set_series(
 ave_deaths_restart_univ_slow = tools.plot_run_set_series(
     us_set_restart_univ_slow, s.CUMULATIVE_DEATHS_SERIES, title_template)
 
+title_template = '{} Simulation, varianst,\nuniv reopen day 168, slow 250, variants 346,pop: 3,280,000'
+ave_new_cases_variants = tools.plot_run_set_series(
+    us_set_variants, s.NEW_CASES_SERIES, title_template)
+
+ave_new_confirmed_cases_variants = tools.plot_run_set_series(
+    us_set_variants, s.NEW_CONFIRMED_CASES_SERIES, title_template)
+
+ave_hospitalizations_variants = tools.plot_run_set_series(
+    us_set_variants, s.ACTIVE_HOSPITALIZED_CASES_SERIES, title_template)
+
+ave_cases_variants = tools.plot_run_set_series(
+    us_set_variants, s.CUMULATIVE_CONFIRMED_CASES_SERIES, title_template)
+
+ave_deaths_variants = tools.plot_run_set_series(
+    us_set_variants, s.CUMULATIVE_DEATHS_SERIES, title_template)
+
 new_cases_confirmed_set = {
     'actual new cases, 7 day ave., Johns Hopkins University': us_daily_new_7_day,
     # 'unrestricted reopen, Re=1.56': ave_new_confirmed_cases,
     "july full mask, Re=0.79": ave_new_confirmed_cases_lock,
     "july some masks, Re=0.92": ave_new_confirmed_cases_restrict,
     "july actual, Re=0.86, univ at 207, Re=1.50": ave_new_confirmed_cases_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_new_confirmed_cases_restart_univ_slow
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_new_confirmed_cases_restart_univ_slow,
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_new_confirmed_cases_variants
 }
 tools.plot_curves(new_cases_confirmed_set, 'Best and Worst New Confirmed Cases Scenarios', hilight=4)
 
@@ -236,7 +254,8 @@ cumulative_cases_set = {
     "july full mask, Re=0.79": ave_cases_lock,
     "july some masks, Re=0.92 ": ave_cases_restrict,
     "july actual, Re=0.86, univ at 207, Re=1.50": ave_cases_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_cases_restart_univ_slow
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_cases_restart_univ_slow,
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_cases_variants
 }
 tools.plot_curves(cumulative_cases_set, 'Best and Worst Cumulative Cases Scenarios', hilight=4)
 
@@ -246,7 +265,8 @@ cumulative_deaths_set = {
     "july full mask, Re=0.79": ave_deaths_lock,
     "july some masks, Re=0.92 ": ave_deaths_restrict,
     "july actual, Re=0.86, univ at 207, Re=1.50": ave_deaths_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_deaths_restart_univ_slow
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_deaths_restart_univ_slow,
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_deaths_variants
 }
 tools.plot_curves(cumulative_deaths_set, 'Best and Worst Cumulative Deaths Scenarios', hilight=4)
 
@@ -255,6 +275,7 @@ hospitalizations_set = {
     "july full mask, Re=0.79": ave_hospitalizations_lock,
     "july some masks, Re=0.92 ": ave_hospitalizations_restrict,
     "july actual, Re=0.86, univ at 207, Re=1.50": ave_hospitalizations_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_hospitalizations_restart_univ_slow
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_hospitalizations_restart_univ_slow,
+    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_hospitalizations_variants
 }
 tools.plot_curves(hospitalizations_set, 'Best and Worst Hospitalizations Scenarios')
