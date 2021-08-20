@@ -100,7 +100,7 @@
         "days": 10
       }
     },
-   "slow and mask": {
+    "slow and mask": {
       "name": "slow and mask",
       "daily contacts": 10,
       "transmission probability": 0.0171,
@@ -119,7 +119,7 @@
       "next phase": "close bars, cafes",
       "condition": {
         "type": "day in simulation",
-        "day": 258
+        "day": 260
       }
     },
     "close bars, cafes": {
@@ -130,13 +130,24 @@
       "next phase": "variants",
       "condition": {
         "type": "day in simulation",
-        "day": 346
+        "day": 351
       }
     },
     "variants": {
       "name": "variants",
       "daily contacts": 12,
       "transmission probability": 0.0235,
+      "testing probability": 0.23,
+      "next phase": "delta",
+      "condition": {
+        "type": "day in simulation",
+        "day": 481
+      }
+    },
+    "delta": {
+      "name": "delta",
+      "daily contacts": 18,
+      "transmission probability": 0.0267,
       "testing probability": 0.23
     }
   }
