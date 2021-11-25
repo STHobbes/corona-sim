@@ -242,40 +242,40 @@ new_cases_confirmed_set = {
     # 'unrestricted reopen, Re=1.56': ave_new_confirmed_cases,
     "july full mask, Re=0.79": ave_new_confirmed_cases_lock,
     "july some masks, Re=0.92": ave_new_confirmed_cases_restrict,
-    "july actual, Re=0.86, univ at 207, Re=1.50": ave_new_confirmed_cases_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_new_confirmed_cases_restart_univ_slow,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_new_confirmed_cases_variants
+    "july actual, Re=0.86; Re=1.50 @ 207": ave_new_confirmed_cases_restart_univ,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.254 @ 247": ave_new_confirmed_cases_restart_univ_slow,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.155 @ 260; Re=1.410 @ 351, Re=2.403 @ 481": ave_new_confirmed_cases_variants
 }
-tools.plot_curves(new_cases_confirmed_set, 'Best and Worst New Confirmed Cases Scenarios', hilight=4)
+tools.plot_curves(new_cases_confirmed_set, 'New Confirmed COVID-19 Cases', hilight=4)
 
 cumulative_cases_set = {
     'actual cases, Johns Hopkins University': us_cumulative,
     # 'unrestricted reopen, Re=1.56': ave_cases,
     "july full mask, Re=0.79": ave_cases_lock,
     "july some masks, Re=0.92 ": ave_cases_restrict,
-    "july actual, Re=0.86, univ at 207, Re=1.50": ave_cases_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_cases_restart_univ_slow,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_cases_variants
+    "july actual, Re=0.86; Re=1.50 @ 207": ave_cases_restart_univ,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.254 @ 247": ave_cases_restart_univ_slow,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.155 @ 260; Re=1.410 @ 351, Re=2.403 @ 481": ave_cases_variants
 }
-tools.plot_curves(cumulative_cases_set, 'Best and Worst Cumulative Cases Scenarios', hilight=4)
+tools.plot_curves(cumulative_cases_set, 'Cumulative Confirmed COVID-19 Cases', hilight=4)
 
 cumulative_deaths_set = {
     'actual deaths, Johns Hopkins University': us_deaths,
     # 'unrestricted reopen, Re=1.56': ave_deaths,
     "july full mask, Re=0.79": ave_deaths_lock,
     "july some masks, Re=0.92 ": ave_deaths_restrict,
-    "july actual, Re=0.86, univ at 207, Re=1.50": ave_deaths_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_deaths_restart_univ_slow,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_deaths_variants
+    "july actual, Re=0.86; Re=1.50 @ 207": ave_deaths_restart_univ,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.254 @ 247": ave_deaths_restart_univ_slow,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.155 @ 260; Re=1.410 @ 351, Re=2.403 @ 481": ave_deaths_variants
 }
-tools.plot_curves(cumulative_deaths_set, 'Best and Worst Cumulative Deaths Scenarios', hilight=4)
+tools.plot_curves(cumulative_deaths_set, 'Cumulative COVID-19 Deaths ', hilight=4)
 
 hospitalizations_set = {
     # 'unrestricted reopen, Re=1.56': ave_hospitalizations,
     "july full mask, Re=0.79": ave_hospitalizations_lock,
     "july some masks, Re=0.92 ": ave_hospitalizations_restrict,
-    "july actual, Re=0.86, univ at 207, Re=1.50": ave_hospitalizations_restart_univ,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.254": ave_hospitalizations_restart_univ_slow,
-    "july actual, Re=0.86; univ at 207, Re=1.50; slow Re=1.155, variants Re=1.41": ave_hospitalizations_variants
+    "july actual, Re=0.86; Re=1.50 @ 207": ave_hospitalizations_restart_univ,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.254 @ 247": ave_hospitalizations_restart_univ_slow,
+    "july actual, Re=0.86; Re=1.50 @ 207; Re=1.155 @ 260; Re=1.410 @ 351, Re=2.403 @ 481": ave_hospitalizations_variants
 }
-tools.plot_curves(hospitalizations_set, 'Best and Worst Hospitalizations Scenarios')
+tools.plot_curves(hospitalizations_set, 'Daily COVID-19 Hospitalization')
